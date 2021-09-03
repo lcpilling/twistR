@@ -1,5 +1,35 @@
+#' gmte_binary
+#'
+#' Performs analyses for the Triangulation WIthin A STudy (TWIST) framework to calcuate the ‘genetically moderated treatment effect’ (GMTE) for a binary outcome The `gmte_binary` function returns an object of class \code{"twistR_GMTE"}, containing effect estimates from the individual tests (such as RGMTE) and the results when combinations are performed (such as RGMTE+MR).
+#'
+#' @param Y The binary outcome variable name (string) which appears in data.frame `D`.
+#' @param T The treatment variable name (string) which appears in data.frame `D`. Assumed to be binary.
+#' @param G The genotype variable name (string) which appears in data.frame `D`. Normally binary (e.g. comparing homozygous rare individuals to the rest of the population).
+#' @param Z A string containing the model covariates to appear in the `glm()` models (for example `age+sex`). All need to be in data.frame `D`.
+#' @param D A data.frame containing the above variables.
+#' @param Link Link function for the `glm()` - needs to be one of c("logit","probit","identity"). If unspecified the default is "logit".
+#' @return An object of class \code{"twistR_GMTE"} containing the following components:\describe{
+#' \item{\code{CAT}}{The summary statistics from the Corrected As Treated (CAT) analysis.}
+#' \item{\code{GMTE1}}{The summary statistics from the GMTE(1) analysis (i.e. in the treated individuals).}
+#' \item{\code{GMTE0}}{The summary statistics from the GMTE(0) analysis (i.e. in the untreated individuals).}
+#' \item{\code{MR}}{The summary statistics from the MR analysis.}
+#' \item{\code{RGMTE}}{The summary statistics from the Robust GMTE analysis (GMTE1 corrected for GMTE0).}
+#' \item{\code{FullCombined}}{The combined summary statistics from all analyses performed, inclduing combinations.}
+#'
+#'}
+#' @author Luke Pilling; Jack Bowden.
+#' @references Bowden, J., et al., The Triangulation WIthin A STudy (TWIST) framework for causal inference within Pharmacogenetic research. medrxiv https://doi.org/10.1101/2021.05.04.21256612
+#' @export
+#' @examples
+#' # Example using a binary genotype (SLCO1B1*5 homozygotes), outcome (high LDL), and treatment (statins) variables
+#' Y="ldl_level"
+#' T="selfrep_simatstatin"
+#' G="slco1b1_5_hmz"
+#' Z="age+PC1+PC2+PC3+PC4+PC5+PC6+PC7+PC8+PC9+PC10"
+#' Link="logit"
+#' results = gmte_binary(Y,T,G,Z,D,Link)
 
-GMTE_binary = function(Y,T,G,Z,Link="logit",D)
+gmte_binary = function(Y,T,G,Z,Link="logit",D)
 {
 	cat("TWIST (Triangulation WIthin A STudy) analysis in R - binary outcome\n")
 	require(margins)
@@ -103,10 +133,8 @@ GMTE_binary = function(Y,T,G,Z,Link="logit",D)
 	cat("Results:\n")
 	print(FullCombined)
 
-	output_list=list(Y=Y,T=T,G=G,Z=Z,Link=Link,N=nrow(D),
-	                 CAT=MarCAT,GMTE1=MarGMTE1,GMTE0=MarGMTE0,MR=MarMR,RGMTE=MarRGMTE,
-	                 FullCombined=FullCombined)
-	class(output_list)="twistR_GMTE_binary"
+	output_list=list(CAT=MarCAT,GMTE1=MarGMTE1,GMTE0=MarGMTE0,MR=MarMR,RGMTE=MarRGMTE,FullCombined=FullCombined)
+	class(output_list)="twistR_GMTE"
 	return(output_list)
 
 }
