@@ -22,6 +22,7 @@ To update the package just run the above command again.
 
 ## Function arguments
 `gmte_binary()`
+
 Argument | Description
 -------- | -----------
 Y | The binary outcome variable name (string) which appears in data.frame `D`.
@@ -32,6 +33,7 @@ D | A data.frame containing the above variables.
 Link | Link function for the `glm()` - needs to be one of "logit","probit" or "identity". If unspecified the default is "logit".
 
 `gmte_continuous()`
+
 Argument | Description
 -------- | -----------
 Y | The continuous outcome variable name (string) which appears in data.frame `D`.
@@ -41,6 +43,7 @@ Z | A string containing the model covariates to appear in the `glm()` models (fo
 D | A data.frame containing the above variables.
 
 `gmte_aalen()`
+
 Argument | Description
 -------- | -----------
 Y_t0 | Variable name (string) for when participants "enter" the model, which appears in data.frame `D`. When participants enter the model (can be all 0s if Y_t1 is time since start of exposure). Variable can be in date format from the `as.Date()` function, or numeric.
