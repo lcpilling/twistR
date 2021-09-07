@@ -79,18 +79,22 @@ Link="logit"
 results=gmte_binary(Y,T,G,Z,D,Link)
 ```
 
-Prints the following results:
-`                       Est         SE        P.Est        Qstat        Qp Combine?
-CAT          -1.315816e+01 0.07672673 0.000000e+00           NA        NA       NA
-GMTE1         5.823592e-02 0.01373771 2.243879e-05           NA        NA       NA
-GMTE0        -8.747968e-04 0.00596922 8.834862e-01           NA        NA       NA
-RGMTE         7.525366e-02 0.01630214 3.908640e-06           NA        NA       NA
-MR           -8.593626e-04 0.04927101 9.860844e-01           NA        NA       NA
-RGMTE_MR      6.774350e-02 0.01547698 1.202974e-05     2.150891 0.1424872        1
-RGMTE_CAT    -4.963459e-01 0.01594618 0.000000e+00 28462.588988 0.0000000        0
-MR_CAT       -3.842414e+00 0.04145881 0.000000e+00 20820.492332 0.0000000        0
-GMTE1_CAT    -3.522933e-01 0.01352266 0.000000e+00 28749.387485 0.0000000        0
-RGMTE_MR_CAT -4.493672e-01 0.01517140 0.000000e+00 28554.130703 0.0000000        0`
+Prints the following results table:
 
+  | Est | SE | P.Est | Qstat | Qp Combine?
+- | --- | -- | ----- | ----- | -----------
+CAT | -1.315816e+01 | 0.07672673 | 0.000000e+00 | NA | NA | NA
+GMTE1 | 5.823592e-02 | 0.01373771 | 2.243879e-05 | NA | NA | NA
+GMTE0 | -8.747968e-04 | 0.00596922 | 8.834862e-01 | NA | NA | NA
+RGMTE | 7.525366e-02 | 0.01630214 | 3.908640e-06 | NA | NA | NA
+MR | -8.593626e-04 | 0.04927101 | 9.860844e-01 | NA | NA | NA
+RGMTE_MR | 6.774350e-02 | 0.01547698 | 1.202974e-05 | 2.150891 | 0.1424872 | 1
+RGMTE_CAT | -4.963459e-01 | 0.01594618 | 0.000000e+00 | 28462.588988 | 0.0000000 | 0
+MR_CAT | -3.842414e+00 | 0.04145881 | 0.000000e+00 | 20820.492332 | 0.0000000 | 0
+GMTE1_CAT | -3.522933e-01 | 0.01352266 | 0.000000e+00 | 28749.387485 | 0.0000000 | 0
+RGMTE_MR_CAT | -4.493672e-01 | 0.01517140 | 0.000000e+00 | 28554.130703 | 0.0000000 | 0
 
+For a binary analysis, the `Est` is the difference in risk between the genotype groups. 
+For a continuous analysis, the `Est` is the difference in outcome (units) between the genotype groups. 
+For a time-to-event (Aalen) analysis, the `Est` is the difference in number of events per person year.
 
