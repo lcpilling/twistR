@@ -14,7 +14,7 @@ gmte_combine(Ests = Ests, SEs = SEs, alpha = 0.05)
 \item{alpha}{Significance threshold (default 0.05)}
 }
 \value{
-
+An object containing the combined estimate (plus SE, P, and Q statistic)
 }
 \description{
 Internal function to combine estimates from multiple models and provide summary statistics
@@ -23,5 +23,5 @@ Internal function to combine estimates from multiple models and provide summary 
 Bowden, J., et al., The Triangulation WIthin A STudy (TWIST) framework for causal inference within Pharmacogenetic research. medrxiv https://doi.org/10.1101/2021.05.04.21256612
 }
 \author{
-Luke Pilling; Jack Bowden.
+Jack Bowden; Luke Pilling.
 }

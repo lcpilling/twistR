@@ -7,8 +7,7 @@
 #' @param alpha Significance threshold (default 0.05)
 #' @return An object containing the combined estimate (plus SE, P, and Q statistic)
 #'
-#'}
-#' @author Luke Pilling; Jack Bowden.
+#' @author Jack Bowden; Luke Pilling.
 #' @references Bowden, J., et al., The Triangulation WIthin A STudy (TWIST) framework for causal inference within Pharmacogenetic research. medrxiv https://doi.org/10.1101/2021.05.04.21256612
 #' @export
 
