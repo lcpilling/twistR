@@ -102,15 +102,15 @@ gmte_binary = function(Y,T,G,Z,Link="logit",D)
 	# Combined methods
 	cat("Combined methods\n")
 	Ests         = c(MR,RGMTE); SEs = c(sMR,sRGMTE)
-	RGMTE_MR     = GMTE_combine(Ests,SEs)
+	RGMTE_MR     = gmte_combine(Ests,SEs)
 	Ests         = c(CAT,RGMTE); SEs = c(sCAT,sRGMTE)
-	RGMTE_CAT    = GMTE_combine(Ests,SEs)
+	RGMTE_CAT    = gmte_combine(Ests,SEs)
 	Ests         = c(CAT,MR); SEs = c(sCAT,sMR)
-	MR_CAT       = GMTE_combine(Ests,SEs)
+	MR_CAT       = gmte_combine(Ests,SEs)
 	Ests         = c(CAT,GMTE1); SEs = c(sCAT,sGMTE1)
-	GMTE1_CAT    = GMTE_combine(Ests,SEs)
+	GMTE1_CAT    = gmte_combine(Ests,SEs)
 	Ests         = c(MR,RGMTE,CAT); SEs = c(sMR,sRGMTE,sCAT)
-	RGMTE_MR_CAT = GMTE_combine(Ests,SEs)
+	RGMTE_MR_CAT = gmte_combine(Ests,SEs)
 
 
 	# Final output
