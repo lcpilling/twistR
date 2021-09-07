@@ -8,12 +8,9 @@ TWIST therefore robustly estimates how many events (outcome can be mortality, di
 Preprint on medrxiv https://doi.org/10.1101/2021.05.04.21256612
 
 ## Installation
-To install RadialMR directly from the GitHub repository, first make sure you have the devtools package installed:
+To install `twistR` directly from GitHub use the `devtools` package (to install: `install.packages("devtools")`)
 
-install.packages("remotes")
+`devtools::install_github("lukepilling/twistR")`
 
-Then the RadialMR package can be installed using:
+To update the package just run the above command again.
 
-remotes::install_github("WSpiller/RadialMR")
-
-To update the package just run the remotes::install_github("WSpiller/RadialMR") command again.
