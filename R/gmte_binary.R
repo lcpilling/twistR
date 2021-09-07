@@ -126,9 +126,9 @@ gmte_binary = function(Y,T,G,Z,Link="logit",D)
 	FullCombined[9,] = GMTE1_CAT
 	FullCombined[10,] = RGMTE_MR_CAT
 
-	colnames(FullCombined) =c("Est","SE","EstP","Qstat","Qp","Combine?")
-	rownames(FullCombined) =c("CAT","GMTE1","GMTE0","RGMTE","MR",
-	                          "RGMTE_MR","RGMTE_CAT","MR_CAT","GMTE1_CAT","RGMTE_MR_CAT")
+	colnames(FullCombined) = c("Est","SE","EstP","Qstat","Qp","Combine?")
+	rownames(FullCombined) = c("CAT","GMTE1","GMTE0","RGMTE","MR",
+	                           "RGMTE_MR","RGMTE_CAT","MR_CAT","GMTE1_CAT","RGMTE_MR_CAT")
 
 	cat("Results:\n")
 	print(FullCombined)

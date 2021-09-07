@@ -7,6 +7,16 @@ TWIST therefore robustly estimates how many events (outcome can be mortality, di
 
 Preprint on medrxiv https://doi.org/10.1101/2021.05.04.21256612
 
+## Table of Contents
+  - [Installation](#installation)
+  - [Model types performed](#model-types-performed)
+  - [Function arguments](#function-arguments)
+      - [gmte_binary()](#gmte_binary)
+      - [gmte_continuous()](#gmte_continuous)
+      - [gmte_aalen()](#gmte_aalen)
+  - [Output and example](#output-and-example)
+
+
 ## Installation
 To install `twistR` from GitHub use the `devtools` package:
 
@@ -14,14 +24,15 @@ To install `twistR` from GitHub use the `devtools` package:
 
 To update the package just run the above command again.
 
-## Models
+## Model types performed
 `twistR` can perform GMTE analysis on three types of outcome:
 1. `gmte_binary()` performs logistic regression analysis of a binary outcome (yes/no [1]/[0]). Requires `margins` package.
 2. `gmte_continuous()` performs linear regression analysis of a continuous outcome (quantitative measure, such as LDL cholesterol).
 3. `gmte_aalen()` performs Aalen additive hazards model i.e. a time-to-event analysis (such as mortality). Requires `timereg` package.
 
 ## Function arguments
-`gmte_binary()`
+
+#### gmte_binary()
 
 Argument | Description
 -------- | -----------
@@ -32,7 +43,7 @@ Z | A string containing the model covariates to appear in the `glm()` models (fo
 D | A data.frame containing the above variables.
 Link | Link function for the `glm()` - needs to be one of "logit","probit" or "identity". If unspecified the default is "logit".
 
-`gmte_continuous()`
+#### gmte_continuous()
 
 Argument | Description
 -------- | -----------
@@ -42,7 +53,7 @@ G | The genotype variable name (string) which appears in data.frame `D`. Normall
 Z | A string containing the model covariates to appear in the `glm()` models (for example "age+sex"). All need to be in data.frame `D`.
 D | A data.frame containing the above variables.
 
-`gmte_aalen()`
+#### gmte_aalen()
 
 Argument | Description
 -------- | -----------
@@ -53,4 +64,33 @@ T | The treatment variable name (string) which appears in data.frame `D`. Assume
 G | The genotype variable name (string) which appears in data.frame `D`. Normally binary (e.g. comparing homozygous rare individuals to the rest of the population).
 Z | A string containing the model covariates to appear in the `glm()` models (for example "age+sex"). All need to be in data.frame `D`. Unless otherwise specified covariates will be assumed to be time invarying i.e. the `const()` wrapper will be added  See `aalen()` documentation in `timereg` package.
 D | A data.frame containing the above variables.
+
+## Output and example
+
+For each GMTE function a object of class `twistR_GMTE` is returned. This contains the full model outputs from each individual analysis performed (GMTE1, GMTE0, MR, RGMTE, and CAT --  see paper) in addition to a summary of all the models performed and whether the models can be combined to improve estimation in `$FullCombined`. For example:
+
+```R
+# Example using a binary genotype (SLCO1B1*5 homozygotes), outcome (high LDL), and treatment (statins) variables
+Y="ldl_high"
+T="statin"
+G="slco1b1_5_hmz"
+Z="age+PC1+PC2+PC3+PC4+PC5+PC6+PC7+PC8+PC9+PC10"
+Link="logit"
+results=gmte_binary(Y,T,G,Z,D,Link)
+```
+
+Prints the following results:
+`                       Est         SE        P.Est        Qstat        Qp Combine?
+CAT          -1.315816e+01 0.07672673 0.000000e+00           NA        NA       NA
+GMTE1         5.823592e-02 0.01373771 2.243879e-05           NA        NA       NA
+GMTE0        -8.747968e-04 0.00596922 8.834862e-01           NA        NA       NA
+RGMTE         7.525366e-02 0.01630214 3.908640e-06           NA        NA       NA
+MR           -8.593626e-04 0.04927101 9.860844e-01           NA        NA       NA
+RGMTE_MR      6.774350e-02 0.01547698 1.202974e-05     2.150891 0.1424872        1
+RGMTE_CAT    -4.963459e-01 0.01594618 0.000000e+00 28462.588988 0.0000000        0
+MR_CAT       -3.842414e+00 0.04145881 0.000000e+00 20820.492332 0.0000000        0
+GMTE1_CAT    -3.522933e-01 0.01352266 0.000000e+00 28749.387485 0.0000000        0
+RGMTE_MR_CAT -4.493672e-01 0.01517140 0.000000e+00 28554.130703 0.0000000        0`
+
+
 
