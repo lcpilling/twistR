@@ -81,8 +81,8 @@ results=gmte_binary(Y,T,G,Z,D,Link)
 
 Prints the following results table:
 
-  | Est | SE | P.Est | Qstat | Qp Combine?
-- | --- | -- | ----- | ----- | -----------
+ Model | Est | SE | P.Est | Qstat | Qp Combine?
+------ | --- | -- | ----- | ----- | -----------
 CAT | -1.315816e+01 | 0.07672673 | 0.000000e+00 | NA | NA | NA
 GMTE1 | 5.823592e-02 | 0.01373771 | 2.243879e-05 | NA | NA | NA
 GMTE0 | -8.747968e-04 | 0.00596922 | 8.834862e-01 | NA | NA | NA
