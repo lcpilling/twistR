@@ -2,11 +2,16 @@ Package: twistR
 Type: Package
 Title: TWIST (Triangulation WIthin A STudy) analysis in R.
 Version: 0.1.0
-Authors: Jack Bowden, Luke Pilling
+Authors@R: c(person("Luke", "Pilling", 
+                    email = "L.Pilling@exeter.ac.uk", 
+                    role = c("aut", "cre"),
+                    comment = c(ORCID = "0000-0002-3332-8454")), 
+              person("Jack", "Bowden", 
+                    email = "J.Bowden2@exeter.ac.uk", 
+                    role = c("aut"),
+                    comment = c(ORCID = "0000-0003-2628-3304")))
 Maintainer: Luke Pilling (L.Pilling@exeter.ac.uk)
-Description: The TWIST framework estimates the 'genetically moderated treatment effect' (GMTE). This is akin to the population attributable fraction (PAF) in pharmaco-epidemiology: the excess disease or outcomes in individuals prescribed a specific medication that are attributed to genetic variant(s). TWIST extends the PAF by incorporating information on both treated and untreated individuals. With this larger set of information we show that four analysis approaches for estimating the GMTE are possible. Each one relies on a different set of assumptions to work correctly and provides estimates that are largely uncorrelated with one another. A decision framework is used to decide when a particular estimation strategy is most appropriate and how specific estimators can be combined to further improve efficiency. Triangulation of evidence from different data sources, each with their inherent biases and limitations, is becoming a well established principle for strengthening causal analysis. Hence we called our framework 'Triangulation WIthin a STudy' (TWIST) in order to emphasise that an analysis in this spirit is also possible within a single data set, using causal estimates that are approximately uncorrelated, but reliant on different sets of assumptions.
-    TWIST therefore robustly estimates how many events (outcome can be mortality, disease, symptoms, etc) in the genotype group could be avoided if this group could experience the same treatment effect as non-carriers.
-    Preprint on medrxiv https://doi.org/10.1101/2021.05.04.21256612
+Description: An R package to implement the 'Triangulation WIthin a STudy' (TWIST) analysis framework to robusty estimate the 'Genetically Modified Treatment Effect' (GMTE).
 License: GPL-3
 URL: https://github.com/lukepilling/twistR
 Depends:
