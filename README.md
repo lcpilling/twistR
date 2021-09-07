@@ -70,7 +70,11 @@ D | A data.frame containing the above variables.
 For each GMTE function a object of class `twistR_GMTE` is returned. This contains the full model outputs from each individual analysis performed (GMTE1, GMTE0, MR, RGMTE, and CAT --  see paper) in addition to a summary of all the models performed and whether the models can be combined to improve estimation in `$FullCombined`. For example:
 
 ```R
-# Example using a binary genotype (SLCO1B1*5 homozygotes), outcome (high LDL), and treatment (statins) variables
+# Example using: 
+#   - a binar outcome (high LDL) - in data.frame D
+#   - a binary treatment variable (on statins) - in data.frame D
+#   - a binary genotype (SLCO1B1*5 homozygotes) - in data.frame D
+#   - adjustment for age and genetic principal components of ancestry 1 to 10 - all in data.frame D
 Y="ldl_high"
 T="statin"
 G="slco1b1_5_hmz"
@@ -81,8 +85,8 @@ results=gmte_binary(Y,T,G,Z,D,Link)
 
 Prints the following results table:
 
- Model | Est | SE | P.Est | Qstat | Qp Combine?
------- | --- | -- | ----- | ----- | -----------
+ Model | Est | SE | P.Est | Qstat | Qp | Combine?
+------ | --- | -- | ----- | ----- | -- | --------
 CAT | -1.315816e+01 | 0.07672673 | 0.000000e+00 | NA | NA | NA
 GMTE1 | 5.823592e-02 | 0.01373771 | 2.243879e-05 | NA | NA | NA
 GMTE0 | -8.747968e-04 | 0.00596922 | 8.834862e-01 | NA | NA | NA
@@ -94,7 +98,8 @@ MR_CAT | -3.842414e+00 | 0.04145881 | 0.000000e+00 | 20820.492332 | 0.0000000 | 
 GMTE1_CAT | -3.522933e-01 | 0.01352266 | 0.000000e+00 | 28749.387485 | 0.0000000 | 0
 RGMTE_MR_CAT | -4.493672e-01 | 0.01517140 | 0.000000e+00 | 28554.130703 | 0.0000000 | 0
 
-For a binary analysis, the `Est` is the difference in risk between the genotype groups. 
-For a continuous analysis, the `Est` is the difference in outcome (units) between the genotype groups. 
-For a time-to-event (Aalen) analysis, the `Est` is the difference in number of events per person year.
+* For a binary analysis, the `Est` is the difference in risk between the genotype groups.
+* For a continuous analysis, the `Est` is the difference in outcome (units) between the genotype groups.
+* For a time-to-event (Aalen) analysis, the `Est` is the difference in number of events per person year between the genotype groups.
 
+To understand the best model the user needs to consider the context of the specific treatment and population. It is not so simple as to just use the Robust GMTE (RGMTE) estimate, for example. 
