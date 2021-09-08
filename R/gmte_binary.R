@@ -35,6 +35,12 @@ gmte_binary = function(Y,T,G,Z,Link="logit",D)
 	require(margins)
 
 	## check inputs
+	if (class(Y) != "character")  stop("Outcome Y needs to be a variable name i.e. a string (class `character`)")
+	if (class(T) != "character")  stop("Treatment T needs to be a variable name i.e. a string (class `character`)")
+	if (class(G) != "character")  stop("Genotype G needs to be a variable name i.e. a string (class `character`)")
+	if (class(Z) != "character")  stop("Covariates Z needs to be a formula i.e. a string (class `character`) of variable(s) in data.frame D")
+	if (class(Link) != "character")  stop("Link needs to be a string (class `character`) and needs to be one of c(\"logit\",\"probit\",\"identity\")")
+
 	if (! Link %in% c("logit","probit","identity"))  stop(paste0("Link [", Link, "] needs to be one of c(\"logit\",\"probit\",\"identity\")"))
 	if (class(D) != "data.frame")  stop("D needs to be a data.frame")
 	if (! Y %in% colnames(D))  stop(paste0("Outcome Y [", Y, "] needs to be in data.frame D"))

@@ -5,7 +5,11 @@ The TWIST framework estimates the 'genetically moderated treatment effect' (GMTE
 
 TWIST therefore robustly estimates how many events (outcome can be mortality, disease, symptoms, etc) in the genotype group could be avoided if this group could experience the same treatment effect as non-carriers.
 
-Preprint on medrxiv https://doi.org/10.1101/2021.05.04.21256612
+Please see published paper in PLOS Genetics for further information https://doi.org/10.1371/journal.pgen.1009783
+
+If you use this package please cite
+
+> Bowden J, Pilling L, Tu¨rkmen D, Kuo C-L, Melzer D (2021) The Triangulation WIthin a STudy (TWIST) framework for causal inference within pharmacogenetic research. PLoS Genet 17(9):e1009783. https://doi.org/10.1371/journal.pgen.1009783
 
 ## Table of Contents
   - [Installation](#installation)
