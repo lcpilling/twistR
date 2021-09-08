@@ -53,21 +53,24 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100)
 	
 	## check covariates are in data - make new formula with const() wrapper if required
 	Zs=strsplit(Z,"+",fixed=TRUE)[[1]]
-	Znew=""
+	Zwrapped=""
+	Zunwrapped=""
 	for (ii in 1:length(Zs))  
 	{
 		Zx=Zs[ii]
-		if (ii>1) Znew=paste0(Znew,"+")
+		if (ii>1) Zwrapped=paste0(Zwrapped,"+")
 		## if wrapper is supplied for variable in formula
-		if (grep("(",Zx,fixed=T))
+		if (grepl("(",Zx,fixed=TRUE))
 		{
 			## strip this to check data is in D
-			Zx=strsplit(strsplit(Zx,"(",fixed=T)[[1]][2],")",fixed=T)[[1]][1]
+			Zx=strsplit(strsplit(Zx,"(",fixed=TRUE)[[1]][2],")",fixed=TRUE)[[1]][1]
 			## add to new formula
-			Znew=paste0(Znew,Zx)
+			Zwrapped=paste0(Zwrapped,Zs[ii])
+			Zunwrapped=Zs[ii]=Zx
 		} else {
 			## no wrapper provided. Assume constant (time invarying)
-			Znew=paste0(Znew,"const(",Zx,")")
+			Zwrapped=paste0(Zwrapped,"const(",Zx,")")
+			Zunwrapped=Zx
 		}
 		if (! Zx %in% colnames(D))  stop(paste0("Covariate [", Zx, "] needs to be in data.frame D"))
 	}
@@ -77,12 +80,12 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100)
 	cat(paste0("- Outcome Y_t0 [", Y_d, "] i.e. binary variable indicating event\n"))
 	cat(paste0("- Treatment T [", T, "]\n"))
 	cat(paste0("- Genotype G [", G, "]\n"))
-	cat(paste0("- Covariates [", Znew, "]\n"))
+	cat(paste0("- Covariates [", Zwrapped, "]\n"))
 	
 	## check variable formats
 	if (class(D[,Y_t0]) != "numeric" & class(D[,Y_t0]) != "Date") stop(paste0("Outcome Y_t0 [", Y_t0, "] needs to be in `numeric` or `Date` format"))
 	if (class(D[,Y_t1]) != "numeric" & class(D[,Y_t1]) != "Date") stop(paste0("Outcome Y_t1 [", Y_t1, "] needs to be in `numeric` or `Date` format"))
-	if (class(D[,Y_d]) != "numeric") stop(paste0("Outcome Y_d [", Y_d, "] needs to be `numeric`"))
+	if (class(D[,Y_d]) != "numeric" & class(D[,Y_d]) != "integer") stop(paste0("Outcome Y_d [", Y_d, "] needs to be `numeric`"))
 	
 	## if dates provided, convert to numeric 
 	if (class(D[,Y_t0]) == "Date")  D[,Y_t0] = as.numeric(D[,Y_t0])
@@ -108,37 +111,42 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100)
 
 	# MR
 	cat("Run MR model\n")
-	D[,"Tshat"] = glm(as.formula(paste0("Tstar~G+",Z)),family=binomial(link="logit"),data=D)$fitted
-	MRfit       = aalen(as.formula(paste0("Surv(Y_t0,Y_t1,Y_d)~const(Tshat)+",Znew)),data=D,n.sim=Nsim)
-	MR          = summary(MRfit)$coef["Tshat",1]
-	sMR         = summary(MRfit)$coef["Tshat",2]
+	D[,"Tshat"] = glm(as.formula(paste0("Tstar~G+",Zunwrapped)),family=binomial(link="logit"),data=D)$fitted
+	MRfit       = invisible(aalen(as.formula(paste0("Surv(Y_t0,Y_t1,Y_d)~const(Tshat)+",Zwrapped)),data=D,n.sim=Nsim))
+	MR          = coef(MRfit)["const(Tshat)",1]
+	sMR         = coef(MRfit)["const(Tshat)",2]
+	pMR         = coef(MRfit)["const(Tshat)",5]
 
 	# Corrected-As treated (CAT)
 	cat("Run CAT model\n")
 	D[,"Tcat"] = D[,"T"]*mean(D[,"G"][D[,"T"]==1])
-	CATfit     = aalen(as.formula(paste0("Surv(Y_t0,Y_t1,Y_d)~const(Tcat)+",Znew)),data=D,n.sim=Nsim)
-	CAT        = summary(CATfit)$coef["Tcat",1]
-	sCAT       = summary(CATfit)$coef["Tcat",2]
+	CATfit     = invisible(aalen(as.formula(paste0("Surv(Y_t0,Y_t1,Y_d)~const(Tcat)+",Zwrapped)),data=D,n.sim=Nsim))
+	CAT        = coef(CATfit)["const(Tcat)",1]
+	sCAT       = coef(CATfit)["const(Tcat)",2]
+	pCAT       = coef(CATfit)["const(Tcat)",5]
 
 	# GMTE(1)
 	cat("Run GMTE(1) model\n")
-	GMTE1fit = aalen(as.formula(paste0("Surv(Y_t0,Y_t1,Y_d)~const(T)+const(Tstar)+",Znew)),data=D,n.sim=Nsim)
-	GMTE1    = summary(GMTE1fit)$coef["Tstar",1]
-	sGMTE1   = summary(GMTE1fit)$coef["Tstar",2]
+	GMTE1fit = invisible(aalen(as.formula(paste0("Surv(Y_t0,Y_t1,Y_d)~const(T)+const(Tstar)+",Zwrapped)),data=D,n.sim=Nsim))
+	GMTE1    = coef(GMTE1fit)["const(Tstar)",1]
+	sGMTE1   = coef(GMTE1fit)["const(Tstar)",2]
+	pGMTE1   = coef(GMTE1fit)["const(Tstar)",5]
 
 	# GMTE(0)
 	cat("Run GMTE(0) model\n")
 	D[,"tt"] = (1-D[,"T"])
 	D[,"ts"] = D[,"tt"]*D[,"G"]
-	GMTE0fit = aalen(as.formula(paste0("Surv(Y_t0,Y_t1,Y_d)~const(tt)+const(ts)+",Znew)),data=D,n.sim=Nsim)
-	GMTE0    = summary(GMTE0fit)$coef["ts",1]
-	sGMTE0   = summary(GMTE0fit)$coef["ts",2]
+	GMTE0fit = invisible(aalen(as.formula(paste0("Surv(Y_t0,Y_t1,Y_d)~const(tt)+const(ts)+",Zwrapped)),data=D,n.sim=Nsim))
+	GMTE0    = coef(GMTE0fit)["const(ts)",1]
+	sGMTE0   = coef(GMTE0fit)["const(ts)",2]
+	pGMTE0   = coef(GMTE0fit)["const(ts)",5]
 
 	# RGMTE
 	cat("Run RGMTE model\n")
-	RGMTEfit = aalen(as.formula(paste0("Surv(Y_t0,Y_t1,Y_d)~const(T)+const(Tstar)+const(Tshat)+",Znew)),data=D,n.sim=Nsim) 
-	RGMTE    = summary(RGMTEfit)$coef["Tstar",1]
-	sRGMTE   = summary(RGMTEfit)$coef["Tstar",2]
+	RGMTEfit = invisible(aalen(as.formula(paste0("Surv(Y_t0,Y_t1,Y_d)~const(T)+const(Tstar)+const(Tshat)+",Zwrapped)),data=D,n.sim=Nsim))
+	RGMTE    = coef(RGMTEfit)["const(Tstar)",1]
+	sRGMTE   = coef(RGMTEfit)["const(Tstar)",2]
+	pRGMTE   = coef(RGMTEfit)["const(Tstar)",5]
 
 	# Combined methods
 	cat("Combined methods\n")
@@ -156,11 +164,11 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100)
 
 	# Final output
 	FullCombined     = matrix(nrow=10,ncol=6)
-	FullCombined[1,] = c(as.numeric(CATfit["Tcat",c(1,2,4)]),NA,NA,NA)
-	FullCombined[2,] = c(as.numeric(GMTE1fit["Tstar",c(1,2,4)]),NA,NA,NA)
-	FullCombined[3,] = c(as.numeric(GMTE0fit["ts",c(1,2,4)]),NA,NA,NA)
-	FullCombined[4,] = c(as.numeric(RGMTEfit["Tshat",c(1,2,4)]),NA,NA,NA)
-	FullCombined[5,] = c(as.numeric(MRfit["Tshat",c(1,2,4)]),NA,NA,NA)
+	FullCombined[1,] = c(CAT,sCAT,pCAT,NA,NA,NA)
+	FullCombined[2,] = c(GMTE1,sGMTE1,pGMTE1,NA,NA,NA)
+	FullCombined[3,] = c(GMTE0,sGMTE0,pGMTE0,NA,NA,NA)
+	FullCombined[4,] = c(RGMTE,sRGMTE,pRGMTE,NA,NA,NA)
+	FullCombined[5,] = c(MR,sMR,pMR,NA,NA,NA)
 	FullCombined[6,] = RGMTE_MR
 	FullCombined[7,] = RGMTE_CAT
 	FullCombined[8,] = MR_CAT
@@ -174,7 +182,7 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100)
 	cat("Results:\n")
 	print(FullCombined)
 
-	output_list=list(model="gmte_aalen",CAT=MarCAT,GMTE1=MarGMTE1,GMTE0=MarGMTE0,MR=MarMR,RGMTE=MarRGMTE,FullCombined=FullCombined)
+	output_list=list(model="gmte_aalen",CAT=CATfit,GMTE1=GMTE1fit,GMTE0=GMTE0fit,MR=MRfit,RGMTE=RGMTEfit,FullCombined=FullCombined)
 	class(output_list)="twistR_GMTE"
 	return(output_list)
 

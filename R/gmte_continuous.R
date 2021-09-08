@@ -66,6 +66,7 @@ gmte_continuous = function(Y,T,G,Z,D)
 	MRfit       = lm(as.formula(paste0("Y~Tshat+",Z)),data=D)
 	MR          = summary(MRfit)$coef["Tshat",1]
 	sMR         = summary(MRfit)$coef["Tshat",2]
+	pMR         = summary(MRfit)$coef["Tshat",4]
 
 	# Corrected-As treated (CAT)
 	cat("Run CAT model\n")
@@ -73,12 +74,14 @@ gmte_continuous = function(Y,T,G,Z,D)
 	CATfit     = lm(as.formula(paste0("Y~Tcat+",Z)),data=D)
 	CAT        = summary(CATfit)$coef["Tcat",1]
 	sCAT       = summary(CATfit)$coef["Tcat",2]
+	pCAT       = summary(CATfit)$coef["Tcat",4]
 
 	# GMTE(1)
 	cat("Run GMTE(1) model\n")
 	GMTE1fit = lm(as.formula(paste0("Y~T+Tstar+",Z)),data=D)
 	GMTE1    = summary(GMTE1fit)$coef["Tstar",1]
 	sGMTE1   = summary(GMTE1fit)$coef["Tstar",2]
+	pGMTE1   = summary(GMTE1fit)$coef["Tstar",4]
 
 	# GMTE(0)
 	cat("Run GMTE(0) model\n")
@@ -87,12 +90,14 @@ gmte_continuous = function(Y,T,G,Z,D)
 	GMTE0fit = lm(as.formula(paste0("Y~tt+ts+",Z)),data=D)
 	GMTE0    = summary(GMTE0fit)$coef["ts",1]
 	sGMTE0   = summary(GMTE0fit)$coef["ts",2]
+	pGMTE0   = summary(GMTE0fit)$coef["ts",4]
 
 	# RGMTE
 	cat("Run RGMTE model\n")
 	RGMTEfit = lm(as.formula(paste0("Y~T+Tstar+Tshat+",Z)),data=D) 
 	RGMTE    = summary(RGMTEfit)$coef["Tstar",1]
 	sRGMTE   = summary(RGMTEfit)$coef["Tstar",2]
+	pRGMTE   = summary(RGMTEfit)$coef["Tstar",4]
 
 	# Combined methods
 	cat("Combined methods\n")
@@ -110,11 +115,11 @@ gmte_continuous = function(Y,T,G,Z,D)
 
 	# Final output
 	FullCombined     = matrix(nrow=10,ncol=6)
-	FullCombined[1,] = c(as.numeric(CATfit["Tcat",c(1,2,4)]),NA,NA,NA)
-	FullCombined[2,] = c(as.numeric(GMTE1fit["Tstar",c(1,2,4)]),NA,NA,NA)
-	FullCombined[3,] = c(as.numeric(GMTE0fit["ts",c(1,2,4)]),NA,NA,NA)
-	FullCombined[4,] = c(as.numeric(RGMTEfit["Tshat",c(1,2,4)]),NA,NA,NA)
-	FullCombined[5,] = c(as.numeric(MRfit["Tshat",c(1,2,4)]),NA,NA,NA)
+	FullCombined[1,] = c(CAT,sCAT,pCAT,NA,NA,NA)
+	FullCombined[2,] = c(GMTE1,sGMTE1,pGMTE1,NA,NA,NA)
+	FullCombined[3,] = c(GMTE0,sGMTE0,pGMTE0,NA,NA,NA)
+	FullCombined[4,] = c(RGMTE,sRGMTE,pRGMTE,NA,NA,NA)
+	FullCombined[5,] = c(MR,sMR,pMR,NA,NA,NA)
 	FullCombined[6,] = RGMTE_MR
 	FullCombined[7,] = RGMTE_CAT
 	FullCombined[8,] = MR_CAT
@@ -128,7 +133,7 @@ gmte_continuous = function(Y,T,G,Z,D)
 	cat("Results:\n")
 	print(FullCombined)
 
-	output_list=list(model="gmte_continuous",CAT=MarCAT,GMTE1=MarGMTE1,GMTE0=MarGMTE0,MR=MarMR,RGMTE=MarRGMTE,FullCombined=FullCombined)
+	output_list=list(model="gmte_continuous",CAT=CATfit,GMTE1=GMTE1fit,GMTE0=GMTE0fit,MR=MRfit,RGMTE=RGMTEfit,FullCombined=FullCombined)
 	class(output_list)="twistR_GMTE"
 	return(output_list)
 
