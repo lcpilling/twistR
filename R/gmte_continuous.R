@@ -1,13 +1,12 @@
-#' gmte_binary
+#' gmte_continuous
 #'
-#' Performs analyses for the Triangulation WIthin A STudy (TWIST) framework to calcuate the ‘genetically moderated treatment effect’ (GMTE) for a binary outcome The \code{gmte_binary} function returns an object of class \code{twistR_GMTE}, containing effect estimates from the individual tests (such as RGMTE) and the results when combinations are performed (such as RGMTE+MR).
+#' Performs analyses for the Triangulation WIthin A STudy (TWIST) framework to calcuate the ‘genetically moderated treatment effect’ (GMTE) for a continuous outcome The \code{gmte_continuous} function returns an object of class \code{twistR_GMTE}, containing effect estimates from the individual tests (such as RGMTE) and the results when combinations are performed (such as RGMTE+MR).
 #'
-#' @param Y The binary outcome variable name (string) which appears in data.frame \code{D}.
+#' @param Y The continuous outcome variable name (string) which appears in data.frame \code{D}.
 #' @param T The treatment variable name (string) which appears in data.frame \code{D}. Assumed to be binary.
 #' @param G The genotype variable name (string) which appears in data.frame \code{D}. Normally binary (e.g. comparing homozygous rare individuals to the rest of the population).
 #' @param Z A string containing the model covariates to appear in the \code{glm()} models (for example "age+sex"). All need to be in data.frame \code{D}.
 #' @param D A data.frame containing the above variables.
-#' @param Link Link function for the \code{glm()} - needs to be one of "logit","probit" or "identity". If unspecified the default is "logit".
 #' @return An object of class \code{twistR_GMTE} containing the following components:\describe{
 #' \item{\code{CAT}}{The summary statistics from the Corrected As Treated (CAT) analysis.}
 #' \item{\code{GMTE1}}{The summary statistics from the GMTE(1) analysis (i.e. in the treated individuals).}
@@ -21,27 +20,23 @@
 #' @references Bowden, J., et al., The Triangulation WIthin A STudy (TWIST) framework for causal inference within Pharmacogenetic research. PLoS Genetics. https://doi.org/10.1371/journal.pgen.1009783
 #' @export
 #' @examples
-#' # Example using a binary outcome (high LDL), binary treatment (statins), and binary genotype (SLCO1B1*5 homozygotes) variables
-#' Y="ldl_high"
+#' # Example using a continuous outcome (LDL), binary treatment (statins), and binary genotype (SLCO1B1*5 homozygotes) variables
+#' Y="ldl"
 #' T="statin"
 #' G="slco1b1_5_hmz"
 #' Z="age+PC1+PC2+PC3+PC4+PC5+PC6+PC7+PC8+PC9+PC10"
-#' Link="logit"
-#' results=gmte_binary(Y,T,G,Z,D,Link)
+#' results=gmte_continuous(Y,T,G,Z,D)
 
-gmte_binary = function(Y,T,G,Z,Link="logit",D)
+gmte_continuous = function(Y,T,G,Z,D)
 {
-	cat("TWIST (Triangulation WIthin A STudy) analysis in R - binary outcome\n")
-	require(margins)
+	cat("TWIST (Triangulation WIthin A STudy) analysis in R - continuous outcome\n")
 
 	## check inputs
 	if (class(Y) != "character")  stop("Outcome Y needs to be a variable name i.e. a string (class `character`)")
 	if (class(T) != "character")  stop("Treatment T needs to be a variable name i.e. a string (class `character`)")
 	if (class(G) != "character")  stop("Genotype G needs to be a variable name i.e. a string (class `character`)")
 	if (class(Z) != "character")  stop("Covariates Z needs to be a formula i.e. a string (class `character`) of variable(s) in data.frame D")
-	if (class(Link) != "character")  stop("Link needs to be a string (class `character`) and needs to be one of c(\"logit\",\"probit\",\"identity\")")
 
-	if (! Link %in% c("logit","probit","identity"))  stop(paste0("Link [", Link, "] needs to be one of c(\"logit\",\"probit\",\"identity\")"))
 	if (class(D) != "data.frame")  stop("D needs to be a data.frame")
 	if (! Y %in% colnames(D))  stop(paste0("Outcome Y [", Y, "] needs to be in data.frame D"))
 	if (! T %in% colnames(D))  stop(paste0("Treatment T [", T, "] needs to be in data.frame D"))
