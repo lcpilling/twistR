@@ -26,9 +26,9 @@ To update the package just run the above command again.
 
 ## Model types performed
 `twistR` can perform GMTE analysis on three types of outcome:
-1. `gmte_binary()` performs logistic regression analysis of a binary outcome (yes/no [1]/[0]). Requires [`margins`](https://cran.r-project.org/web/packages/margins/) package.
+1. `gmte_binary()` performs logistic regression analysis of a binary outcome (yes/no [1]/[0]). Requires the [`margins`](https://cran.r-project.org/web/packages/margins/) package.
 2. `gmte_continuous()` performs linear regression analysis of a continuous outcome (quantitative measure, such as LDL cholesterol).
-3. `gmte_aalen()` performs Aalen additive hazards model i.e. a time-to-event analysis (such as mortality). Requires `[timereg](https://cran.r-project.org/web/packages/timereg/)` package.
+3. `gmte_aalen()` performs Aalen additive hazards model i.e. a time-to-event analysis (such as mortality). Requires the [`timereg`](https://cran.r-project.org/web/packages/timereg/) package.
 
 ## Function arguments
 
@@ -62,7 +62,7 @@ Y_t1 | Variable name (string) for when participants "exit" the model, which appe
 Y_d | Variable name for the binary "event" variable (string) which appears in data.frame `D`. 
 T | The treatment variable name (string) which appears in data.frame `D`. Assumed to be binary.
 G | The genotype variable name (string) which appears in data.frame `D`. Normally binary (e.g. comparing homozygous rare individuals to the rest of the population).
-Z | A string containing the model covariates to appear in the `glm()` models (for example "age+sex"). All need to be in data.frame `D`. Unless otherwise specified covariates will be assumed to be time invarying i.e. the `const()` wrapper will be added  See `aalen()` documentation in `timereg` package.
+Z | A string containing the model covariates to appear in the `glm()` models (for example "age+sex"). All need to be in data.frame `D`. Unless otherwise specified covariates will be assumed to be time invarying i.e. the `const()` wrapper will be added  See `aalen()` documentation in the [`timereg`](https://cran.r-project.org/web/packages/timereg/) package.
 D | A data.frame containing the above variables.
 
 ## Output and example
@@ -107,4 +107,4 @@ To understand which estimate is best to use, the user needs to consider the foll
 * the assumptions tested by each model,
 * whether a combination of estimates (such as the MR and RGMTE estimates) is optimum.
 
-It is not so simple as to just use the Robust GMTE (RGMTE) estimate, for example. For this reason we do not automatically give a recommendation when the functions are executed. For the combined estimated, the `Combine?` column simply reports whether the p-value for the Q-statistic (`Qp`) is >0.05 i.e. the estimates do not significantly differ. This does not necesssarily mean it is the best choice. For futher information on the assumptions tested and decision framework please see the published manuscript (open access in PLOS Genetics). 
+It is not so simple as to just use the Robust GMTE (RGMTE) estimate, for example. For this reason we do not automatically give a recommendation when the functions are executed. For the combined estimates the `Combine?` column simply reports whether the p-value for the Q-statistic (`Qp`) is >0.05 i.e. the estimates do not significantly differ. This does not necesssarily mean it is the best choice. For futher information on the assumptions tested and decision framework please see the published manuscript (open access in PLOS Genetics). 
