@@ -59,6 +59,7 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100)
 	{
 		Zx=Zs[ii]
 		if (ii>1) Zwrapped=paste0(Zwrapped,"+")
+		if (ii>1) Zunwrapped=paste0(Zunwrapped,"+")
 		## if wrapper is supplied for variable in formula
 		if (grepl("(",Zx,fixed=TRUE))
 		{
@@ -66,11 +67,12 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100)
 			Zx=strsplit(strsplit(Zx,"(",fixed=TRUE)[[1]][2],")",fixed=TRUE)[[1]][1]
 			## add to new formula
 			Zwrapped=paste0(Zwrapped,Zs[ii])
-			Zunwrapped=Zs[ii]=Zx
+			Zs[ii]=Zx
+			Zunwrapped=paste0(Zunwrapped,Zx)
 		} else {
 			## no wrapper provided. Assume constant (time invarying)
 			Zwrapped=paste0(Zwrapped,"const(",Zx,")")
-			Zunwrapped=Zx
+			Zunwrapped=paste0(Zunwrapped,Zx)
 		}
 		if (! Zx %in% colnames(D))  stop(paste0("Covariate [", Zx, "] needs to be in data.frame D"))
 	}
@@ -81,7 +83,7 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100)
 	cat(paste0("- Treatment T [", T, "]\n"))
 	cat(paste0("- Genotype G [", G, "]\n"))
 	cat(paste0("- Covariates [", Zwrapped, "]\n"))
-	
+
 	## check variable formats
 	if (class(D[,Y_t0]) != "numeric" & class(D[,Y_t0]) != "Date") stop(paste0("Outcome Y_t0 [", Y_t0, "] needs to be in `numeric` or `Date` format"))
 	if (class(D[,Y_t1]) != "numeric" & class(D[,Y_t1]) != "Date") stop(paste0("Outcome Y_t1 [", Y_t1, "] needs to be in `numeric` or `Date` format"))
