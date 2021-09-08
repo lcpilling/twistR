@@ -63,42 +63,37 @@ gmte_continuous = function(Y,T,G,Z,D)
 
 	# MR
 	cat("Run MR model\n")
-	D[,"Tshat"] = glm(as.formula(paste0("Tstar~G+",Z)),family=binomial(link=Link),data=D)$fitted
-	MRfit       = glm(as.formula(paste0("Y~Tshat+",Z)),family=binomial(link=Link),data=D)
-	MarMR       = summary(margins(MRfit))
-	MR          = MarMR[MarMR[,"factor"]=="Tshat",2]
-	sMR         = MarMR[MarMR[,"factor"]=="Tshat",3]
+	D[,"Tshat"] = lm(as.formula(paste0("Tstar~G+",Z)),data=D)$fitted
+	MRfit       = lm(as.formula(paste0("Y~Tshat+",Z)),data=D)
+	MR          = summary(MRfit)$coef[2,1]
+	sMR         = summary(MRfit)$coef[2,2]
 
 	# Corrected-As treated (CAT)
 	cat("Run CAT model\n")
 	D[,"Tcat"] = D[,"T"]*mean(D[,"G"][D[,"T"]==1])
-	CATfit     = glm(as.formula(paste0("Y~Tcat+",Z)),family=binomial(link=Link),data=D)
-	MarCAT     = summary(margins(CATfit))
-	CAT        = MarCAT[MarCAT[,"factor"]=="Tcat",2]
-	sCAT       = MarCAT[MarCAT[,"factor"]=="Tcat",3]
+	CATfit     = lm(as.formula(paste0("Y~Tcat+",Z)),data=D)
+	CAT        = summary(CATfit)$coef[2,1]
+	sCAT       = summary(CATfit)$coef[2,2]
 
 	# GMTE(1)
 	cat("Run GMTE(1) model\n")
-	GMTE1fit = glm(as.formula(paste0("Y~T+Tstar+",Z)),family=binomial(link=Link),data=D)
-	MarGMTE1 = summary(margins(GMTE1fit))
-	GMTE1    = MarGMTE1[MarGMTE1[,"factor"]=="Tstar",2]
-	sGMTE1   = MarGMTE1[MarGMTE1[,"factor"]=="Tstar",3]
+	GMTE1fit = lm(as.formula(paste0("Y~T+Tstar+",Z)),data=D)
+	GMTE1    = summary(GMTE1fit)$coef[3,1]
+	sGMTE1   = summary(GMTE1fit)$coef[3,2]
 
 	# GMTE(0)
 	cat("Run GMTE(0) model\n")
 	D[,"tt"] = (1-D[,"T"])
 	D[,"ts"] = D[,"tt"]*D[,"G"]
-	GMTE0fit = glm(as.formula(paste0("Y~tt+ts+",Z)),family=binomial(link=Link),data=D)
-	MarGMTE0 = summary(margins(GMTE0fit))
-	GMTE0    = MarGMTE0[MarGMTE0[,"factor"]=="ts",2]
-	sGMTE0   = MarGMTE0[MarGMTE0[,"factor"]=="ts",3]
+	GMTE0fit = lm(as.formula(paste0("Y~tt+ts+",Z)),data=D)
+	GMTE0    = summary(GMTE0fit)$coef[3,1]
+	sGMTE0   = summary(GMTE0fit)$coef[3,2]
 
 	# RGMTE
 	cat("Run RGMTE model\n")
-	RGMTEfit = glm(as.formula(paste0("Y~T+Tstar+Tshat+",Z)),family=binomial(link=Link),data=D) 
-	MarRGMTE = summary(margins(RGMTEfit))
-	RGMTE    = MarRGMTE[MarRGMTE[,"factor"]=="Tstar",2]
-	sRGMTE   = MarRGMTE[MarRGMTE[,"factor"]=="Tstar",3]
+	RGMTEfit = lm(as.formula(paste0("Y~T+Tstar+Tshat+",Z)),data=D) 
+	RGMTE    = summary(RGMTEfit)$coef[3,1]
+	sRGMTE   = summary(RGMTEfit)$coef[3,2]
 
 	# Combined methods
 	cat("Combined methods\n")
@@ -116,11 +111,11 @@ gmte_continuous = function(Y,T,G,Z,D)
 
 	# Final output
 	FullCombined     = matrix(nrow=10,ncol=6)
-	FullCombined[1,] = c(as.numeric(MarCAT[MarCAT[,"factor"]=="Tcat",c(2,3,5)]),NA,NA,NA)
-	FullCombined[2,] = c(as.numeric(MarGMTE1[MarGMTE1[,"factor"]=="Tstar",c(2,3,5)]),NA,NA,NA)
-	FullCombined[3,] = c(as.numeric(MarGMTE0[MarGMTE0[,"factor"]=="ts",c(2,3,5)]),NA,NA,NA)
-	FullCombined[4,] = c(as.numeric(MarRGMTE[MarRGMTE[,"factor"]=="Tstar",c(2,3,5)]),NA,NA,NA)
-	FullCombined[5,] = c(as.numeric(MarMR[MarMR[,"factor"]=="Tshat",c(2,3,5)]),NA,NA,NA)
+	FullCombined[1,] = c(as.numeric(CATfit[2,c(1,2,4)]),NA,NA,NA)
+	FullCombined[2,] = c(as.numeric(GMTE1fit[3,c(1,2,4)]),NA,NA,NA)
+	FullCombined[3,] = c(as.numeric(GMTE0fit[3,c(1,2,4)]),NA,NA,NA)
+	FullCombined[4,] = c(as.numeric(RGMTEfit[3,c(1,2,4)]),NA,NA,NA)
+	FullCombined[5,] = c(as.numeric(MRfit[2,c(1,2,4)]),NA,NA,NA)
 	FullCombined[6,] = RGMTE_MR
 	FullCombined[7,] = RGMTE_CAT
 	FullCombined[8,] = MR_CAT
