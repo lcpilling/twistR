@@ -50,6 +50,8 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100)
 	if (! Y_d %in% colnames(D))  stop(paste0("Outcome Y_d [", Y_d, "] needs to be in data.frame D"))
 	if (! T %in% colnames(D))  stop(paste0("Treatment T [", T, "] needs to be in data.frame D"))
 	if (! G %in% colnames(D))  stop(paste0("Genotype G [", G, "] needs to be in data.frame D"))
+	
+	## check covariates are in data - make new formula with const() wrapper if required
 	Zs=strsplit(Z,"+",fixed=TRUE)[[1]]
 	Znew=""
 	for (ii in 1:length(Zs))  
