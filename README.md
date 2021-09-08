@@ -26,9 +26,9 @@ To update the package just run the above command again.
 
 ## Model types performed
 `twistR` can perform GMTE analysis on three types of outcome:
-1. `gmte_binary()` performs logistic regression analysis of a binary outcome (yes/no [1]/[0]). Requires `margins` package.
+1. `gmte_binary()` performs logistic regression analysis of a binary outcome (yes/no [1]/[0]). Requires [`margins`](https://cran.r-project.org/web/packages/margins/) package.
 2. `gmte_continuous()` performs linear regression analysis of a continuous outcome (quantitative measure, such as LDL cholesterol).
-3. `gmte_aalen()` performs Aalen additive hazards model i.e. a time-to-event analysis (such as mortality). Requires `timereg` package.
+3. `gmte_aalen()` performs Aalen additive hazards model i.e. a time-to-event analysis (such as mortality). Requires `[timereg](https://cran.r-project.org/web/packages/timereg/)` package.
 
 ## Function arguments
 
@@ -71,7 +71,7 @@ For each GMTE function a object of class `twistR_GMTE` is returned. This contain
 
 ```R
 # Example using: 
-#   - a binar outcome (high LDL) - in data.frame D
+#   - a binary outcome (high LDL) - in data.frame D
 #   - a binary treatment variable (on statins) - in data.frame D
 #   - a binary genotype (SLCO1B1*5 homozygotes) - in data.frame D
 #   - adjustment for age and genetic principal components of ancestry 1 to 10 - all in data.frame D
@@ -102,4 +102,9 @@ RGMTE_MR_CAT | -4.493672e-01 | 0.01517140 | 0.000000e+00 | 28554.130703 | 0.0000
 * For a continuous analysis, the `Est` is the difference in outcome (units) between the genotype groups.
 * For a time-to-event (Aalen) analysis, the `Est` is the difference in number of events per person year between the genotype groups.
 
-To understand the best model the user needs to consider the context of the specific treatment and population. It is not so simple as to just use the Robust GMTE (RGMTE) estimate, for example. 
+To understand which estimate is best to use, the user needs to consider the following:
+* the context of the specific treatment and population,
+* the assumptions tested by each model,
+* whether a combination of estimates (such as the MR and RGMTE estimates) is optimum.
+
+It is not so simple as to just use the Robust GMTE (RGMTE) estimate, for example. For this reason we do not automatically give a recommendation when the functions are executed. For the combined estimated, the `Combine?` column simply reports whether the p-value for the Q-statistic (`Qp`) is >0.05 i.e. the estimates do not significantly differ. This does not necesssarily mean it is the best choice. For futher information on the assumptions tested and decision framework please see the published manuscript (open access in PLOS Genetics). 
