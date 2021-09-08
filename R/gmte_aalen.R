@@ -1,12 +1,15 @@
-#' gmte_continuous
+#' gmte_aalen
 #'
-#' Performs analyses for the Triangulation WIthin A STudy (TWIST) framework to calcuate the ‘genetically moderated treatment effect’ (GMTE) for a continuous outcome. The \code{gmte_continuous} function returns an object of class \code{twistR_GMTE}, containing effect estimates from the individual tests (such as RGMTE) and the results when combinations are performed (such as RGMTE+MR).
+#' Performs analyses for the Triangulation WIthin A STudy (TWIST) framework to calcuate the ‘genetically moderated treatment effect’ (GMTE) for a time-to-event Aalen additive hazards model. The \code{gmte_aalen} function returns an object of class \code{twistR_GMTE}, containing effect estimates from the individual tests (such as RGMTE) and the results when combinations are performed (such as RGMTE+MR).
 #'
-#' @param Y The continuous outcome variable name (string) which appears in data.frame \code{D}.
+#' @param Y_t0 Variable name (string) for when participants "enter" the model, which appears in data.frame \code{D}. When participants enter the model (can be all 0s if \code{Y_t1} is time since start of exposure). Variable can be in date format from the \code{as.Date()} function, or numeric.
+#' @param Y_t1 Variable name (string) for when participants "exit" the model, which appears in data.frame \code{D}. Either days since start of exposure period (numeric) or in date format from the \code{as.Date()} function.
+#' @param Y_d Variable name for the binary "event" variable (string) which appears in data.frame \code{D}.
 #' @param T The treatment variable name (string) which appears in data.frame \code{D}. Assumed to be binary.
 #' @param G The genotype variable name (string) which appears in data.frame \code{D}. Normally binary (e.g. comparing homozygous rare individuals to the rest of the population).
 #' @param Z A string containing the model covariates to appear in the \code{glm()} models (for example "age+sex"). All need to be in data.frame \code{D}.
 #' @param D A data.frame containing the above variables.
+#' @param Nsim Number of simulations to perform in the \code{aalen()} models. Default is 100.
 #' @return An object of class \code{twistR_GMTE} containing the following components:\describe{
 #' \item{\code{CAT}}{The summary statistics from the Corrected As Treated (CAT) analysis.}
 #' \item{\code{GMTE1}}{The summary statistics from the GMTE(1) analysis (i.e. in the treated individuals).}
@@ -19,64 +22,105 @@
 #' @references Bowden, J., et al., The Triangulation WIthin A STudy (TWIST) framework for causal inference within Pharmacogenetic research. PLoS Genetics. https://doi.org/10.1371/journal.pgen.1009783
 #' @export
 #' @examples
-#' # Example using a continuous outcome (LDL), binary treatment (statins), and binary genotype (SLCO1B1*5 homozygotes) variables
-#' Y="ldl"
+#' # Example using a time-to-event outcome (mortality), binary treatment (statins), and binary genotype (SLCO1B1*5 homozygotes) variables
+#' Y_t0="date_first_statin"
+#' Y_t1="date_of_death_or_censor"
+#' Y_d="dead"
 #' T="statin"
 #' G="slco1b1_5_hmz"
 #' Z="age+PC1+PC2+PC3+PC4+PC5+PC6+PC7+PC8+PC9+PC10"
-#' results=gmte_continuous(Y,T,G,Z,D)
+#' results=gmte_aalen(Y_t0,Y_t1,Y_d,T,G,Z,D)
 
-gmte_continuous = function(Y,T,G,Z,D)
+gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100)
 {
-	cat("TWIST (Triangulation WIthin A STudy) analysis in R - continuous outcome\n")
+	cat("TWIST (Triangulation WIthin A STudy) analysis in R - Aalen additive hazards (time-to-event) model\n")
+	require(timereg)
 
 	## check inputs
-	if (class(Y) != "character")  stop("Outcome Y needs to be a variable name i.e. a string (class `character`)")
+	if (class(Y_t0) != "character")  stop("Outcome Y_t0 needs to be a variable name i.e. a string (class `character`)")
+	if (class(Y_t1) != "character")  stop("Outcome Y_t1 needs to be a variable name i.e. a string (class `character`)")
+	if (class(Y_d) != "character")  stop("Outcome Y_d needs to be a variable name i.e. a string (class `character`)")
 	if (class(T) != "character")  stop("Treatment T needs to be a variable name i.e. a string (class `character`)")
 	if (class(G) != "character")  stop("Genotype G needs to be a variable name i.e. a string (class `character`)")
 	if (class(Z) != "character")  stop("Covariates Z needs to be a formula i.e. a string (class `character`) of variable(s) in data.frame D e.g. \"age+sex\"")
 
 	if (class(D) != "data.frame")  stop("D needs to be a data.frame")
-	if (! Y %in% colnames(D))  stop(paste0("Outcome Y [", Y, "] needs to be in data.frame D"))
+	if (! Y_t0 %in% colnames(D))  stop(paste0("Outcome Y_t0 [", Y_t0, "] needs to be in data.frame D"))
+	if (! Y_t1 %in% colnames(D))  stop(paste0("Outcome Y_t1 [", Y_t1, "] needs to be in data.frame D"))
+	if (! Y_d %in% colnames(D))  stop(paste0("Outcome Y_d [", Y_d, "] needs to be in data.frame D"))
 	if (! T %in% colnames(D))  stop(paste0("Treatment T [", T, "] needs to be in data.frame D"))
 	if (! G %in% colnames(D))  stop(paste0("Genotype G [", G, "] needs to be in data.frame D"))
 	Zs=strsplit(Z,"+",fixed=TRUE)[[1]]
-	for (Zx in Zs)  if (! Zx %in% colnames(D))  stop(paste0("Covariate [", Zx, "] needs to be in data.frame D"))
+	Znew=""
+	for (ii in 1:length(Zs))  
+	{
+		Zx=Zs[ii]
+		if (ii>1) Znew=paste0(Znew,"+")
+		## if wrapper is supplied for variable in formula
+		if (grep("(",Zx,fixed=T))
+		{
+			## strip this to check data is in D
+			Zx=strsplit(strsplit(Zx,"(",fixed=T)[[1]][2],")",fixed=T)[[1]][1]
+			## add to new formula
+			Znew=paste0(Znew,Zx)
+		} else {
+			## no wrapper provided. Assume constant (time invarying)
+			Znew=paste0(Znew,"const(",Zx,")")
+		}
+		if (! Zx %in% colnames(D))  stop(paste0("Covariate [", Zx, "] needs to be in data.frame D"))
+	}
 
-	cat(paste0("- Outcome Y [", Y, "]\n"))
+	cat(paste0("- Outcome Y_t0 [", Y_t0, "] i.e. when participants enter model\n"))
+	cat(paste0("- Outcome Y_t1 [", Y_t1, "] i.e. when participants exit model\n"))
+	cat(paste0("- Outcome Y_t0 [", Y_d, "] i.e. binary variable indicating event\n"))
 	cat(paste0("- Treatment T [", T, "]\n"))
 	cat(paste0("- Genotype G [", G, "]\n"))
-	cat(paste0("- Covariates [", Z, "]\n"))
-
+	cat(paste0("- Covariates [", Znew, "]\n"))
+	
+	## check variable formats
+	if (class(D[,Y_t0]) != "numeric" & class(D[,Y_t0]) != "Date") stop(paste0("Outcome Y_t0 [", Y_t0, "] needs to be in `numeric` or `Date` format"))
+	if (class(D[,Y_t1]) != "numeric" & class(D[,Y_t1]) != "Date") stop(paste0("Outcome Y_t1 [", Y_t1, "] needs to be in `numeric` or `Date` format"))
+	if (class(D[,Y_d]) != "numeric") stop(paste0("Outcome Y_d [", Y_d, "] needs to be `numeric`"))
+	
+	## if dates provided, convert to numeric 
+	if (class(D[,Y_t0]) == "Date")  D[,Y_t0] = as.numeric(D[,Y_t0])
+	if (class(D[,Y_t1]) == "Date")  D[,Y_t1] = as.numeric(D[,Y_t1])
+	
 	## subset dataset to columns specified and remove NAs
-	D=D[,colnames(D) %in% c(Y,T,G,Zs)]
+	D=D[,colnames(D) %in% c(Y_t0,Y_t1,Y_d,T,G,Zs)]
 	D=as.data.frame(na.omit(D))
 
 	cat(paste0("- N participants with full data [", nrow(D), "]\n\n"))
 
 	## create variables named Y, T and G for formulas, and compute T* (interaction between T and G)
-	D[,"Y"]=D[,Y]
+	D[,"Y_t0"]=D[,Y_t0]
+	D[,"Y_t1"]=D[,Y_t1]
+	D[,"Y_d"]=D[,Y_d]
 	D[,"T"]=D[,T]
 	D[,"G"]=D[,G]
 	D[,"Tstar"] = D[,"T"]*D[,"G"]
 
+	## any exit dates before enter dates?
+	t1_before_t0=D[ D[,"Y_t1"] < D[,"Y_t0"],"Y_t1"]
+	if (length(t1_before_t0)>0) warning("Some exit dates are before enter dates - check your input data")
+
 	# MR
 	cat("Run MR model\n")
-	D[,"Tshat"] = lm(as.formula(paste0("Tstar~G+",Z)),data=D)$fitted
-	MRfit       = lm(as.formula(paste0("Y~Tshat+",Z)),data=D)
+	D[,"Tshat"] = glm(as.formula(paste0("Tstar~G+",Z)),family=binomial(link="logit"),data=D)$fitted
+	MRfit       = aalen(as.formula(paste0("Surv(Y_t0,Y_t1,Y_d)~const(Tshat)+",Znew)),data=D,n.sim=Nsim)
 	MR          = summary(MRfit)$coef["Tshat",1]
 	sMR         = summary(MRfit)$coef["Tshat",2]
 
 	# Corrected-As treated (CAT)
 	cat("Run CAT model\n")
 	D[,"Tcat"] = D[,"T"]*mean(D[,"G"][D[,"T"]==1])
-	CATfit     = lm(as.formula(paste0("Y~Tcat+",Z)),data=D)
+	CATfit     = aalen(as.formula(paste0("Surv(Y_t0,Y_t1,Y_d)~const(Tcat)+",Znew)),data=D,n.sim=Nsim)
 	CAT        = summary(CATfit)$coef["Tcat",1]
 	sCAT       = summary(CATfit)$coef["Tcat",2]
 
 	# GMTE(1)
 	cat("Run GMTE(1) model\n")
-	GMTE1fit = lm(as.formula(paste0("Y~T+Tstar+",Z)),data=D)
+	GMTE1fit = aalen(as.formula(paste0("Surv(Y_t0,Y_t1,Y_d)~const(T)+const(Tstar)+",Znew)),data=D,n.sim=Nsim)
 	GMTE1    = summary(GMTE1fit)$coef["Tstar",1]
 	sGMTE1   = summary(GMTE1fit)$coef["Tstar",2]
 
@@ -84,13 +128,13 @@ gmte_continuous = function(Y,T,G,Z,D)
 	cat("Run GMTE(0) model\n")
 	D[,"tt"] = (1-D[,"T"])
 	D[,"ts"] = D[,"tt"]*D[,"G"]
-	GMTE0fit = lm(as.formula(paste0("Y~tt+ts+",Z)),data=D)
+	GMTE0fit = aalen(as.formula(paste0("Surv(Y_t0,Y_t1,Y_d)~const(tt)+const(ts)+",Znew)),data=D,n.sim=Nsim)
 	GMTE0    = summary(GMTE0fit)$coef["ts",1]
 	sGMTE0   = summary(GMTE0fit)$coef["ts",2]
 
 	# RGMTE
 	cat("Run RGMTE model\n")
-	RGMTEfit = lm(as.formula(paste0("Y~T+Tstar+Tshat+",Z)),data=D) 
+	RGMTEfit = aalen(as.formula(paste0("Surv(Y_t0,Y_t1,Y_d)~const(T)+const(Tstar)+const(Tshat)+",Znew)),data=D,n.sim=Nsim) 
 	RGMTE    = summary(RGMTEfit)$coef["Tstar",1]
 	sRGMTE   = summary(RGMTEfit)$coef["Tstar",2]
 
@@ -128,7 +172,7 @@ gmte_continuous = function(Y,T,G,Z,D)
 	cat("Results:\n")
 	print(FullCombined)
 
-	output_list=list(model="gmte_continuous",CAT=MarCAT,GMTE1=MarGMTE1,GMTE0=MarGMTE0,MR=MarMR,RGMTE=MarRGMTE,FullCombined=FullCombined)
+	output_list=list(model="gmte_aalen",CAT=MarCAT,GMTE1=MarGMTE1,GMTE0=MarGMTE0,MR=MarMR,RGMTE=MarRGMTE,FullCombined=FullCombined)
 	class(output_list)="twistR_GMTE"
 	return(output_list)
 

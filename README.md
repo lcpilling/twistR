@@ -66,7 +66,7 @@ Y_t1 | Variable name (string) for when participants "exit" the model, which appe
 Y_d | Variable name for the binary "event" variable (string) which appears in data.frame `D`. 
 T | The treatment variable name (string) which appears in data.frame `D`. Assumed to be binary.
 G | The genotype variable name (string) which appears in data.frame `D`. Normally binary (e.g. comparing homozygous rare individuals to the rest of the population).
-Z | A string containing the model covariates to appear in the `glm()` models (for example "age+sex"). All need to be in data.frame `D`. Unless otherwise specified covariates will be assumed to be time invarying i.e. the `const()` wrapper will be added  See `aalen()` documentation in the [`timereg`](https://cran.r-project.org/web/packages/timereg/) package.
+Z | A string containing the model covariates to appear in the `glm()` models (for example "age+sex"). All need to be in data.frame `D`. Unless otherwise specified covariates will be assumed to be time invarying i.e. the `const()` wrapper will be added. See `aalen()` documentation in the [`timereg`](https://cran.r-project.org/web/packages/timereg/) package.
 D | A data.frame containing the above variables.
 
 ## Output and example

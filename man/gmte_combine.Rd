@@ -20,7 +20,7 @@ An object containing the combined estimate (plus SE, P, and Q statistic)
 Internal function to combine estimates from multiple models and provide summary statistics
 }
 \references{
-Bowden, J., et al., The Triangulation WIthin A STudy (TWIST) framework for causal inference within Pharmacogenetic research. medrxiv https://doi.org/10.1101/2021.05.04.21256612
+Bowden, J., et al., The Triangulation WIthin A STudy (TWIST) framework for causal inference within Pharmacogenetic research. PLoS Genetics. https://doi.org/10.1371/journal.pgen.1009783
 }
 \author{
 Jack Bowden; Luke Pilling.

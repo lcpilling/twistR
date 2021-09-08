@@ -1,6 +1,6 @@
 #' gmte_binary
 #'
-#' Performs analyses for the Triangulation WIthin A STudy (TWIST) framework to calcuate the ‘genetically moderated treatment effect’ (GMTE) for a binary outcome The \code{gmte_binary} function returns an object of class \code{twistR_GMTE}, containing effect estimates from the individual tests (such as RGMTE) and the results when combinations are performed (such as RGMTE+MR).
+#' Performs analyses for the Triangulation WIthin A STudy (TWIST) framework to calcuate the ‘genetically moderated treatment effect’ (GMTE) for a binary outcome. The \code{gmte_binary} function returns an object of class \code{twistR_GMTE}, containing effect estimates from the individual tests (such as RGMTE) and the results when combinations are performed (such as RGMTE+MR).
 #'
 #' @param Y The binary outcome variable name (string) which appears in data.frame \code{D}.
 #' @param T The treatment variable name (string) which appears in data.frame \code{D}. Assumed to be binary.
@@ -15,7 +15,6 @@
 #' \item{\code{MR}}{The summary statistics from the MR analysis.}
 #' \item{\code{RGMTE}}{The summary statistics from the Robust GMTE analysis (GMTE1 corrected for GMTE0).}
 #' \item{\code{FullCombined}}{The combined summary statistics from all analyses performed, inclduing combinations.}
-#'
 #'}
 #' @author Jack Bowden; Luke Pilling.
 #' @references Bowden, J., et al., The Triangulation WIthin A STudy (TWIST) framework for causal inference within Pharmacogenetic research. PLoS Genetics. https://doi.org/10.1371/journal.pgen.1009783
@@ -38,7 +37,7 @@ gmte_binary = function(Y,T,G,Z,Link="logit",D)
 	if (class(Y) != "character")  stop("Outcome Y needs to be a variable name i.e. a string (class `character`)")
 	if (class(T) != "character")  stop("Treatment T needs to be a variable name i.e. a string (class `character`)")
 	if (class(G) != "character")  stop("Genotype G needs to be a variable name i.e. a string (class `character`)")
-	if (class(Z) != "character")  stop("Covariates Z needs to be a formula i.e. a string (class `character`) of variable(s) in data.frame D")
+	if (class(Z) != "character")  stop("Covariates Z needs to be a formula i.e. a string (class `character`) of variable(s) in data.frame D e.g. \"age+sex\"")
 	if (class(Link) != "character")  stop("Link needs to be a string (class `character`) and needs to be one of c(\"logit\",\"probit\",\"identity\")")
 
 	if (! Link %in% c("logit","probit","identity"))  stop(paste0("Link [", Link, "] needs to be one of c(\"logit\",\"probit\",\"identity\")"))
@@ -139,7 +138,7 @@ gmte_binary = function(Y,T,G,Z,Link="logit",D)
 	cat("Results:\n")
 	print(FullCombined)
 
-	output_list=list(CAT=MarCAT,GMTE1=MarGMTE1,GMTE0=MarGMTE0,MR=MarMR,RGMTE=MarRGMTE,FullCombined=FullCombined)
+	output_list=list(model="gmte_binary",CAT=MarCAT,GMTE1=MarGMTE1,GMTE0=MarGMTE0,MR=MarMR,RGMTE=MarRGMTE,FullCombined=FullCombined)
 	class(output_list)="twistR_GMTE"
 	return(output_list)
 
