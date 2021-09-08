@@ -18,7 +18,7 @@
 #'
 #'}
 #' @author Jack Bowden; Luke Pilling.
-#' @references Bowden, J., et al., The Triangulation WIthin A STudy (TWIST) framework for causal inference within Pharmacogenetic research. medrxiv https://doi.org/10.1101/2021.05.04.21256612
+#' @references Bowden, J., et al., The Triangulation WIthin A STudy (TWIST) framework for causal inference within Pharmacogenetic research. PLoS Genetics. https://doi.org/10.1371/journal.pgen.1009783
 #' @export
 #' @examples
 #' # Example using a binary genotype (SLCO1B1*5 homozygotes), outcome (high LDL), and treatment (statins) variables

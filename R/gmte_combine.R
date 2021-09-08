@@ -8,7 +8,7 @@
 #' @return An object containing the combined estimate (plus SE, P, and Q statistic)
 #'
 #' @author Jack Bowden; Luke Pilling.
-#' @references Bowden, J., et al., The Triangulation WIthin A STudy (TWIST) framework for causal inference within Pharmacogenetic research. medrxiv https://doi.org/10.1101/2021.05.04.21256612
+#' @references Bowden, J., et al., The Triangulation WIthin A STudy (TWIST) framework for causal inference within Pharmacogenetic research. PLoS Genetics. https://doi.org/10.1371/journal.pgen.1009783
 #' @export
 
 gmte_combine = function(Ests=Ests,SEs=SEs,alpha=0.05){

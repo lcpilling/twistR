@@ -5,11 +5,11 @@ The TWIST framework estimates the 'genetically moderated treatment effect' (GMTE
 
 TWIST therefore robustly estimates how many events (outcome can be mortality, disease, symptoms, etc) in the genotype group could be avoided if this group could experience the same treatment effect as non-carriers.
 
-Please see published paper in PLOS Genetics for further information https://doi.org/10.1371/journal.pgen.1009783
+Please see our published paper in PLoS Genetics for further information https://doi.org/10.1371/journal.pgen.1009783
 
 If you use this package please cite
 
-> Bowden J, Pilling L, Tu¨rkmen D, Kuo C-L, Melzer D (2021) The Triangulation WIthin a STudy (TWIST) framework for causal inference within pharmacogenetic research. PLoS Genet 17(9):e1009783. https://doi.org/10.1371/journal.pgen.1009783
+> Bowden J, Pilling L, Türkmen D, Kuo C-L, Melzer D (2021) The Triangulation WIthin a STudy (TWIST) framework for causal inference within pharmacogenetic research. PLoS Genet 17(9):e1009783. https://doi.org/10.1371/journal.pgen.1009783
 
 ## Table of Contents
   - [Installation](#installation)
@@ -111,4 +111,4 @@ To understand which estimate is best to use, the user needs to consider the foll
 * the assumptions tested by each model,
 * whether a combination of estimates (such as the MR and RGMTE estimates) is optimum.
 
-It is not so simple as to just use the Robust GMTE (RGMTE) estimate, for example. For this reason we do not automatically give a recommendation when the functions are executed. For the combined estimates the `Combine?` column simply reports whether the p-value for the Q-statistic (`Qp`) is >0.05 i.e. the estimates do not significantly differ. This does not necesssarily mean it is the best choice. For futher information on the assumptions tested and decision framework please see the published manuscript (open access in PLOS Genetics). 
+It is not so simple as to just use the Robust GMTE (RGMTE) estimate, for example. For this reason we do not automatically give a recommendation when the functions are executed. For the combined estimates the `Combine?` column simply reports whether the p-value for the Q-statistic (`Qp`) is >0.05 i.e. the estimates do not significantly differ. This does not necesssarily mean it is the best choice. For futher information on the assumptions tested and decision framework please see the published manuscript (open access in PLoS Genetics https://doi.org/10.1371/journal.pgen.1009783). 
