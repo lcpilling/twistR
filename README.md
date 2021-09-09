@@ -21,6 +21,7 @@ If you use this package please cite
   - [Output and examples](#output-and-examples)
       - [Example using binary outcome](#example-using-binary-outcome)
       - [Which estimate should I use?](#which-estimate-should-i-use)
+      - [What does the estimate mean?](#what-does-the-estimate-mean)
       - [Example using Aalen additive hazards](#example-using-aalen-additive-hazards)
 
 
@@ -113,10 +114,6 @@ RGMTE_MR_CAT | -4.493672e-01 | 0.01517140 | 0.000000e+00 | 28554.130703 | 0.0000
 
 We can express the GMTE estimand as the average causal effect if everyone could receive moderated treatment level T* = 1 (i.e. the full or enhanced effect) versus if everyone could receive treatment level T* = 0 (i.e. no enhanced effect).
 
-* For a binary analysis, the `Est` is the risk difference if all people could experience the same treatment effect as those with genotype G=1 versus if all people could experience the treatment effect as those with genotype G=0.
-* For a continuous analysis, the `Est` is the mean difference in outcome (units) if all people could experience the same treatment effect as those with genotype G=1 versus if all people could experience the treatment effect as those with genotype G=0.
-* For a time-to-event (Aalen) analysis, the `Est` is the risk difference per unit time (provided by user in `Y_t0` and `Y_t1`, e.g. per year if time coded on the year scale) if all people could experience the same treatment effect as those with genotype G=1 versus if all people could experience the treatment effect as those with genotype G=0. 
-
 #### Which estimate should I use?
 
 To understand which estimate is best to use, the user needs to consider the following:
@@ -125,6 +122,12 @@ To understand which estimate is best to use, the user needs to consider the foll
 * whether a pair or triplet of estimates (such as the MR and RGMTE estimates) are sufficiently similar to combine (default alpha 0.05 for Q-statistic (`Qp`)).
 
 Though the Robust GMTE (RGMTE) estimate is often the most appropriate, in another context the assumptions may not be satified and a combined estimate may be better. For this reason we do not automatically give a recommendation when the functions are executed. For the combined estimates the `Combine?` column simply reports whether the p-value for the Q-statistic (`Qp`) is >0.05 i.e. the estimates do not significantly differ. This does not necesssarily mean it is the best choice. For futher information on the assumptions tested and decision framework please see the published manuscript (open access in PLoS Genetics https://doi.org/10.1371/journal.pgen.1009783). 
+
+#### What does the estimate mean?
+
+* For a binary analysis, the `Est` is the risk difference if all people could experience the same treatment effect as those with genotype G=1 versus if all people could experience the treatment effect as those with genotype G=0.
+* For a continuous analysis, the `Est` is the mean difference in outcome (units) if all people could experience the same treatment effect as those with genotype G=1 versus if all people could experience the treatment effect as those with genotype G=0.
+* For a time-to-event (Aalen) analysis, the `Est` is the risk difference per unit time (provided by user in `Y_t0` and `Y_t1`, e.g. per year if time coded on the year scale) if all people could experience the same treatment effect as those with genotype G=1 versus if all people could experience the treatment effect as those with genotype G=0. 
 
 #### Example using Aalen additive hazards
 
