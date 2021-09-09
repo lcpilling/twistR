@@ -4,7 +4,7 @@
 \alias{gmte_continuous}
 \title{gmte_continuous}
 \usage{
-gmte_continuous(Y, T, G, Z, D)
+gmte_continuous(Y, T, G, Z, D, alpha = 0.05)
 }
 \arguments{
 \item{Y}{The continuous outcome variable name (string) which appears in data.frame \code{D}.}
@@ -16,6 +16,8 @@ gmte_continuous(Y, T, G, Z, D)
 \item{Z}{A string containing the model covariates to appear in the \code{glm()} models (for example "age+sex"). All need to be in data.frame \code{D}.}
 
 \item{D}{A data.frame containing the above variables.}
+
+\item{alpha}{The p-value threshold for the chi-square test, estimating whether two estimates should be combined. Default is 0.05.}
 }
 \value{
 An object of class \code{twistR_GMTE} containing the following components:\describe{

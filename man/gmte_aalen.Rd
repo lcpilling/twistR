@@ -4,7 +4,7 @@
 \alias{gmte_aalen}
 \title{gmte_aalen}
 \usage{
-gmte_aalen(Y_t0, Y_t1, Y_d, T, G, Z, D, Nsim = 100)
+gmte_aalen(Y_t0, Y_t1, Y_d, T, G, Z, D, Nsim = 100, alpha = 0.05)
 }
 \arguments{
 \item{Y_t0}{Variable name (string) for when participants "enter" the model, which appears in data.frame \code{D}. When participants enter the model (can be all 0s if \code{Y_t1} is time since start of exposure). Variable can be in date format from the \code{as.Date()} function, or numeric.}
@@ -22,6 +22,8 @@ gmte_aalen(Y_t0, Y_t1, Y_d, T, G, Z, D, Nsim = 100)
 \item{D}{A data.frame containing the above variables.}
 
 \item{Nsim}{Number of simulations to perform in the \code{aalen()} models. Default is 100.}
+
+\item{alpha}{The p-value threshold for the chi-square test, estimating whether two estimates should be combined. Default is 0.05.}
 }
 \value{
 An object of class \code{twistR_GMTE} containing the following components:\describe{

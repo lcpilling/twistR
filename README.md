@@ -19,6 +19,9 @@ If you use this package please cite
       - [gmte_continuous()](#gmte_continuous)
       - [gmte_aalen()](#gmte_aalen)
   - [Output and example](#output-and-example)
+      - [Example using binary outcome](#example-using-binary-outcome)
+      - [Which estimate should I use?](#which-estimate-should-i-use)
+      - [Example using Aalen additive hazards](#example-using-aalen-additive-hazards)
 
 
 ## Installation
@@ -46,6 +49,7 @@ G | The genotype variable name (string) which appears in data.frame `D`. Normall
 Z | A string containing the model covariates to appear in the `glm()` models (for example "age+sex"). All need to be in data.frame `D`.
 D | A data.frame containing the above variables.
 Link | Link function for the `glm()` - needs to be one of "logit","probit" or "identity". If unspecified the default is "logit".
+alpha | The p-value threshold for the chi-square test, estimating whether two estimates should be combined. Default is 0.05.
 
 #### gmte_continuous()
 
@@ -56,6 +60,7 @@ T | The treatment variable name (string) which appears in data.frame `D`. Assume
 G | The genotype variable name (string) which appears in data.frame `D`. Normally binary (e.g. comparing homozygous rare individuals to the rest of the population).
 Z | A string containing the model covariates to appear in the `glm()` models (for example "age+sex"). All need to be in data.frame `D`.
 D | A data.frame containing the above variables.
+alpha | The p-value threshold for the chi-square test, estimating whether two estimates should be combined. Default is 0.05.
 
 #### gmte_aalen()
 
@@ -68,10 +73,14 @@ T | The treatment variable name (string) which appears in data.frame `D`. Assume
 G | The genotype variable name (string) which appears in data.frame `D`. Normally binary (e.g. comparing homozygous rare individuals to the rest of the population).
 Z | A string containing the model covariates to appear in the `glm()` models (for example "age+sex"). All need to be in data.frame `D`. Unless otherwise specified covariates will be assumed to be time invarying i.e. the `const()` wrapper will be added. See `aalen()` documentation in the [`timereg`](https://cran.r-project.org/web/packages/timereg/) package.
 D | A data.frame containing the above variables.
+Nsim | Number of simulations to perform in the `aalen()` models. Default is 100.
+alpha | The p-value threshold for the chi-square test, estimating whether two estimates should be combined. Default is 0.05.
 
-## Output and example
+## Output and examples
 
 For each GMTE function a object of class `twistR_GMTE` is returned. This contains the full model outputs from each individual analysis performed (GMTE1, GMTE0, MR, RGMTE, and CAT --  see paper) in addition to a summary of all the models performed and whether the models can be combined to improve estimation in `$FullCombined`. For example:
+
+#### Example using binary outcome
 
 ```R
 # Example using: 
@@ -92,8 +101,8 @@ Prints the following results table:
  Model | Est | SE | P.Est | Qstat | Qp | Combine?
 ------ | --- | -- | ----- | ----- | -- | --------
 CAT | -1.315816e+01 | 0.07672673 | 0.000000e+00 | NA | NA | NA
-GMTE1 | 5.823592e-02 | 0.01373771 | 2.243879e-05 | NA | NA | NA
 GMTE0 | -8.747968e-04 | 0.00596922 | 8.834862e-01 | NA | NA | NA
+GMTE1 | 5.823592e-02 | 0.01373771 | 2.243879e-05 | NA | NA | NA
 RGMTE | 7.525366e-02 | 0.01630214 | 3.908640e-06 | NA | NA | NA
 MR | -8.593626e-04 | 0.04927101 | 9.860844e-01 | NA | NA | NA
 RGMTE_MR | 6.774350e-02 | 0.01547698 | 1.202974e-05 | 2.150891 | 0.1424872 | 1
@@ -102,13 +111,63 @@ MR_CAT | -3.842414e+00 | 0.04145881 | 0.000000e+00 | 20820.492332 | 0.0000000 | 
 GMTE1_CAT | -3.522933e-01 | 0.01352266 | 0.000000e+00 | 28749.387485 | 0.0000000 | 0
 RGMTE_MR_CAT | -4.493672e-01 | 0.01517140 | 0.000000e+00 | 28554.130703 | 0.0000000 | 0
 
-* For a binary analysis, the `Est` is the difference in risk between the genotype groups.
-* For a continuous analysis, the `Est` is the difference in outcome (units) between the genotype groups.
-* For a time-to-event (Aalen) analysis, the `Est` is the difference in number of events per person year between the genotype groups.
+We can express the GMTE estimand as the average causal effect if everyone could receive moderated treatment level T* = 1 (i.e. the full or enhanced effect) versus if everyone could receive treatment level T* = 0 (i.e. no enhanced effect).
+
+* For a binary analysis, the `Est` is the risk difference if all people could experience the same treatment effect as those with genotype G=1 versus if all people could experience the treatment effect as those with genotype G=0.
+* For a continuous analysis, the `Est` is the mean difference in outcome (units) if all people could experience the same treatment effect as those with genotype G=1 versus if all people could experience the treatment effect as those with genotype G=0.
+* For a time-to-event (Aalen) analysis, the `Est` is the risk difference per unit time (provided by user in `Y_t0` and `Y_t1`, e.g. per year if time coded on the year scale) if all people could experience the same treatment effect as those with genotype G=1 versus if all people could experience the treatment effect as those with genotype G=0. 
+
+#### Which estimate should I use?
 
 To understand which estimate is best to use, the user needs to consider the following:
 * the context of the specific treatment and population,
-* the assumptions tested by each model,
-* whether a combination of estimates (such as the MR and RGMTE estimates) is optimum.
+* the assumptions made by each method and whether they are plausible,
+* whether a pair or triplet of estimates (such as the MR and RGMTE estimates) are sufficiently similar to combine (default alpha 0.05 for Q-statistic (`Qp`)).
 
-It is not so simple as to just use the Robust GMTE (RGMTE) estimate, for example. For this reason we do not automatically give a recommendation when the functions are executed. For the combined estimates the `Combine?` column simply reports whether the p-value for the Q-statistic (`Qp`) is >0.05 i.e. the estimates do not significantly differ. This does not necesssarily mean it is the best choice. For futher information on the assumptions tested and decision framework please see the published manuscript (open access in PLoS Genetics https://doi.org/10.1371/journal.pgen.1009783). 
+Though the Robust GMTE (RGMTE) estimate is often the most appropriate, in another context the assumptions may not be satified and a combined estimate may be better. For this reason we do not automatically give a recommendation when the functions are executed. For the combined estimates the `Combine?` column simply reports whether the p-value for the Q-statistic (`Qp`) is >0.05 i.e. the estimates do not significantly differ. This does not necesssarily mean it is the best choice. For futher information on the assumptions tested and decision framework please see the published manuscript (open access in PLoS Genetics https://doi.org/10.1371/journal.pgen.1009783). 
+
+#### Example using Aalen additive hazards
+
+In our paper we include results from our analysis of the anti-platelet drug clopidogrel, where genetic variants in gene *CYP2C19* impair drug metabolism and reduce function, thereby increasing risk of thrombosis. We used the Aalen additive hazards models to estimate the increased risk of ischemic stroke in UK Biobank participants prescribed clopidogrel, who carried *CYP2C19* Loss of Function (LoF) variants (*2-*8).
+
+```R
+# Example using: 
+#   - a time-to-event model (time to ischemic stroke) - time to stroke/censoring is in "years" so output should be interpreted this way
+#   - a binary treatment variable (on clopidogrel)
+#   - a binary genotype (CYP2C19 *2-*8 LoF carriers)
+#   - adjustment for age and genetic principal components of ancestry 1 to 10
+Y_t0="time_0"
+Y_t1="time_to_stroke"
+Y_d="stroke_binary"
+T="clopidogrel"
+G="cyp2c19_lof"
+Z="age+sex+PC1+PC2+PC3+PC4+PC5+PC6+PC7+PC8+PC9+PC10"
+results=gmte_aalen(Y_t0,Y_t1,Y_d,T,G,D)
+```
+
+Prints the following results table:
+
+ Model | Est | SE | EstP | Qstat | Qp | Combine?
+------ | --- | -- | ---- | ----- | -- | --------
+CAT | 0.021600000 | 0.0020800000 | 0.000000e+00 | NA | NA | NA
+GMTE0 | -0.000038600 | 0.0000747000 | 6.030000e-01 | NA | NA | NA
+GMTE1 | 0.002770000 | 0.0014000000 | 4.550000e-02 | NA | NA | NA
+RGMTE | 0.003290000 | 0.0015800000 | 3.600000e-02 | NA | NA | NA
+MR | 0.002870000 | 0.0010800000 | 7.970000e-03 | NA | NA | NA
+RGMTE_MR | 0.003003747 | 0.0008916086 | 7.546674e-04 | 0.04815988 | 8.262967e-01 | 1
+RGMTE_CAT | 0.009989461 | 0.0012581694 | 1.998401e-15 | 49.13761212 | 2.386202e-12 | 0
+MR_CAT | 0.006847329 | 0.0009584958 | 9.077183e-13 | 63.86777236 | 1.332268e-15 | 0
+GMTE1_CAT | 0.008640896 | 0.0011614228 | 1.008083e-13 | 56.40253563 | 5.906386e-14 | 0
+RGMTE_MR_CAT | 0.005890357 | 0.0008194919 | 6.583623e-13 | 67.57323818 | 2.109424e-15 | 0
+
+(This table appears as Table 5 in the paper in PLoS Genetics https://doi.org/10.1371/journal.pgen.1009783)
+
+**Estimating the GMTE / interpreting the output** 
+
+To estimate the GMTE in this case we modelled the time to stroke using an Aalen additive hazards model, as described in the paper. All models were adjusted for age at recruitment or first Clopidogrel prescription, sex, and the first 10 genetic principal components of ancestry. The above Table show the results for this analysis, which reflect the genetically moderated effect of Clopidogrel treatment on the hazard of stroke *per year*, expressed as a percentage. The GMTE(1) estimate suggests that being a *CYP2C19* LoF carrier (G = 1) increases the risk of stroke by 0.28% (p = 0.048) compared to those without the LoF variant (G = 0). To put this figure in context, if we could reduce the LoF carrier’s risk by this amount then, when multiplied by the 5264 LoF carrier patient years in the data, it would lead to an expected 13.2% reduction in the total number of strokes. There were 110 strokes in the LoF group, so we would expect this to reduce by 15 (110 to 95) if carriers of a *CYP2C19* LoF variant could experience the same treatment effect as non-carriers.
+
+To test for potential bias in the GMTE(1) estimate, we calculate the GMTE(0) estimate in the untreated population. Thankfully, it is close to zero (Hazard diff = -0.0039%, p = 0.61), although slightly negative. Taken at face value, this suggest LoF carriers have a slightly reduced risk of stroke through pathways other than Clopidogrel use. Next we calculate the Corrected As Treated (CAT) estimate. As discussed in the paper, the validity of this method rests strongly on being able to identify all confounders of Clopidogrel use and stroke. With the data available, it was only possible to adjust for age, sex and genetic principal components and perhaps unsurprisingly, the CAT estimate is an order of magnitude larger (Hazard diff = 2.2%, p=2*10−16). Consequently, the Q[CAT,GMTE(1)] statistic detects large heterogeneity and suggests that the CAT and GMTE(1) estimates should not be combined.
+
+For completeness, we next calculate the RGMTE estimate for the GMTE hazard difference. Since this is itself the difference between the GMTE(1) and GMTE(0) estimates, and given they are of opposite sign, the RMGTE estimate is slightly larger at 0.33% (p = 0.037), suggesting 17 strokes could have been avoided. The MR estimate for the GMTE hazard difference is similar at 0.29% (p = 0.008). Heterogeneity analysis reveals that the MR and RGMTE estimates are sufficiently similar to combine into a more precise single estimate of the GMTE (Q[MR,RGMTE] = 0.8). The combined estimate is 0.3 (p = 7.5*10-4), or that 16 strokes could have been avoided. No other combination of estimates are sufficiently similar to combine.
+
+

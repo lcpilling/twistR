@@ -8,6 +8,7 @@
 #' @param Z A string containing the model covariates to appear in the \code{glm()} models (for example "age+sex"). All need to be in data.frame \code{D}.
 #' @param D A data.frame containing the above variables.
 #' @param Link Link function for the \code{glm()} - needs to be one of "logit","probit" or "identity". If unspecified the default is "logit".
+#' @param alpha The p-value threshold for the chi-square test, estimating whether two estimates should be combined. Default is 0.05.
 #' @return An object of class \code{twistR_GMTE} containing the following components:\describe{
 #' \item{\code{CAT}}{The summary statistics from the Corrected As Treated (CAT) analysis.}
 #' \item{\code{GMTE1}}{The summary statistics from the GMTE(1) analysis (i.e. in the treated individuals).}
@@ -28,7 +29,7 @@
 #' Link="logit"
 #' results=gmte_binary(Y,T,G,Z,D,Link)
 
-gmte_binary = function(Y,T,G,Z,Link="logit",D)
+gmte_binary = function(Y,T,G,Z,Link="logit",D,alpha=0.05)
 {
 	cat("TWIST (Triangulation WIthin A STudy) analysis in R - binary outcome\n")
 	require(margins)
@@ -45,7 +46,7 @@ gmte_binary = function(Y,T,G,Z,Link="logit",D)
 	if (! Y %in% colnames(D))  stop(paste0("Outcome Y [", Y, "] needs to be in data.frame D"))
 	if (! T %in% colnames(D))  stop(paste0("Treatment T [", T, "] needs to be in data.frame D"))
 	if (! G %in% colnames(D))  stop(paste0("Genotype G [", G, "] needs to be in data.frame D"))
-	Zs=strsplit(Z,"+",fixed=TRUE)[[1]]
+	Zs=strsplit(Z,"[+]|[*]")[[1]]
 	for (Zx in Zs)  if (! Zx %in% colnames(D))  stop(paste0("Covariate [", Zx, "] needs to be in data.frame D"))
 
 	cat(paste0("- Outcome Y [", Y, "]\n"))
@@ -57,7 +58,7 @@ gmte_binary = function(Y,T,G,Z,Link="logit",D)
 	D=D[,colnames(D) %in% c(Y,T,G,Zs)]
 	D=as.data.frame(na.omit(D))
 
-	cat(paste0("- N participants with full data [", nrow(D), "]\n\n"))
+	cat(paste0("- N participants with complete data [", nrow(D), "]\n\n"))
 
 	## create variables named Y, T and G for formulas, and compute T* (interaction between T and G)
 	D[,"Y"]=D[,Y]
@@ -107,38 +108,38 @@ gmte_binary = function(Y,T,G,Z,Link="logit",D)
 	# Combined methods
 	cat("Combined methods\n")
 	Ests         = c(MR,RGMTE); SEs = c(sMR,sRGMTE)
-	RGMTE_MR     = gmte_combine(Ests,SEs)
+	RGMTE_MR     = gmte_combine(Ests,SEs,alpha)
 	Ests         = c(CAT,RGMTE); SEs = c(sCAT,sRGMTE)
-	RGMTE_CAT    = gmte_combine(Ests,SEs)
+	RGMTE_CAT    = gmte_combine(Ests,SEs,alpha)
 	Ests         = c(CAT,MR); SEs = c(sCAT,sMR)
-	MR_CAT       = gmte_combine(Ests,SEs)
+	MR_CAT       = gmte_combine(Ests,SEs,alpha)
 	Ests         = c(CAT,GMTE1); SEs = c(sCAT,sGMTE1)
-	GMTE1_CAT    = gmte_combine(Ests,SEs)
+	GMTE1_CAT    = gmte_combine(Ests,SEs,alpha)
 	Ests         = c(MR,RGMTE,CAT); SEs = c(sMR,sRGMTE,sCAT)
-	RGMTE_MR_CAT = gmte_combine(Ests,SEs)
+	RGMTE_MR_CAT = gmte_combine(Ests,SEs,alpha)
 
 
 	# Final output
-	FullCombined     = matrix(nrow=10,ncol=6)
-	FullCombined[1,] = c(as.numeric(MarCAT[MarCAT[,"factor"]=="Tcat",c(2,3,5)]),NA,NA,NA)
-	FullCombined[2,] = c(as.numeric(MarGMTE1[MarGMTE1[,"factor"]=="Tstar",c(2,3,5)]),NA,NA,NA)
-	FullCombined[3,] = c(as.numeric(MarGMTE0[MarGMTE0[,"factor"]=="ts",c(2,3,5)]),NA,NA,NA)
-	FullCombined[4,] = c(as.numeric(MarRGMTE[MarRGMTE[,"factor"]=="Tstar",c(2,3,5)]),NA,NA,NA)
-	FullCombined[5,] = c(as.numeric(MarMR[MarMR[,"factor"]=="Tshat",c(2,3,5)]),NA,NA,NA)
-	FullCombined[6,] = RGMTE_MR
-	FullCombined[7,] = RGMTE_CAT
-	FullCombined[8,] = MR_CAT
-	FullCombined[9,] = GMTE1_CAT
+	FullCombined      = matrix(nrow=10,ncol=6)
+	FullCombined[1,]  = c(as.numeric(MarCAT[MarCAT[,"factor"]=="Tcat",c(2,3,5)]),NA,NA,NA)
+	FullCombined[2,]  = c(as.numeric(MarGMTE0[MarGMTE0[,"factor"]=="ts",c(2,3,5)]),NA,NA,NA)
+	FullCombined[3,]  = c(as.numeric(MarGMTE1[MarGMTE1[,"factor"]=="Tstar",c(2,3,5)]),NA,NA,NA)
+	FullCombined[4,]  = c(as.numeric(MarRGMTE[MarRGMTE[,"factor"]=="Tstar",c(2,3,5)]),NA,NA,NA)
+	FullCombined[5,]  = c(as.numeric(MarMR[MarMR[,"factor"]=="Tshat",c(2,3,5)]),NA,NA,NA)
+	FullCombined[6,]  = RGMTE_MR
+	FullCombined[7,]  = RGMTE_CAT
+	FullCombined[8,]  = MR_CAT
+	FullCombined[9,]  = GMTE1_CAT
 	FullCombined[10,] = RGMTE_MR_CAT
 
 	colnames(FullCombined) = c("Est","SE","EstP","Qstat","Qp","Combine?")
-	rownames(FullCombined) = c("CAT","GMTE1","GMTE0","RGMTE","MR",
+	rownames(FullCombined) = c("CAT","GMTE0","GMTE1","RGMTE","MR",
 	                           "RGMTE_MR","RGMTE_CAT","MR_CAT","GMTE1_CAT","RGMTE_MR_CAT")
 
 	cat("Results:\n")
 	print(FullCombined)
 
-	output_list=list(model="gmte_binary",CAT=MarCAT,GMTE1=MarGMTE1,GMTE0=MarGMTE0,MR=MarMR,RGMTE=MarRGMTE,FullCombined=FullCombined)
+	output_list=list(model="gmte_binary",CAT=MarCAT,GMTE0=MarGMTE0,GMTE1=MarGMTE1,RGMTE=MarRGMTE,MR=MarMR,FullCombined=FullCombined)
 	class(output_list)="twistR_GMTE"
 	return(output_list)
 
