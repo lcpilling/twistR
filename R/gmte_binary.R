@@ -58,13 +58,41 @@ gmte_binary = function(Y,T,G,Z,Link="logit",D,alpha=0.05)
 	D=D[,colnames(D) %in% c(Y,T,G,Zs)]
 	D=as.data.frame(na.omit(D))
 
-	cat(paste0("- N participants with complete data [", nrow(D), "]\n\n"))
-
 	## create variables named Y, T and G for formulas, and compute T* (interaction between T and G)
 	D[,"Y"]=D[,Y]
 	D[,"T"]=D[,T]
 	D[,"G"]=D[,G]
 	D[,"Tstar"] = D[,"T"]*D[,"G"]
+	
+	## check outcome is a binary variable [0]/[1]
+	Y_bin=unique(D[,"Y"])
+	Y_bin=unique(Y)
+	if (length(Y_bin) != 2) stop(paste0("Outcome Y [", Y, "] needs to be a binary variable with only two values: 0 or 1"))
+	if (! Y_bin[1] %in% c(0,1) | ! Y_bin[2] %in% c(0,1)) stop(paste0("Outcome Y [", Y, "] needs to be a binary variable with only two values: 0 or 1"))
+
+	## enough data for people on treatment with genotype?
+	cat(paste0("- N with complete data [", nrow(D), "]\n"))
+
+	n_treated=length(D[ D[,"T"] == 1 , "T"])
+	cat(paste0("- N on treatment (T=1) [", n_treated, "]\n"))
+	
+	n_treated_geno=length(D[ D[,"T"] == 1 & D[,"G"] != 0 , "T"])
+	cat(paste0("- N on treatment (T=1) & carrying genotype (G!=0) [", n_treated_geno, "]\n"))
+	
+	n_treated_geno_outcome=length(D[ D[,"T"] == 1 & D[,"G"] != 0  & D[,"Y"] == 1 , "T"])
+	cat(paste0("- N on treatment (T=1) & carrying genotype (G!=0) & experience event (Y=1) [", n_treated_geno_outcome, "]\n"))
+	
+	if (n_treated_geno == 0) stop("Not enough observations for analysis")	
+	if (n_treated_geno < 100) cat("Warning: Low numbers of Treated individuals carrying the Genotype - model may not converge\n")	
+	
+	if (n_treated_geno_outcome == 0) stop("Not enough participants for analysis")	
+	if (n_treated_geno_outcome < 100) cat("Warning: Low numbers of Treated individuals carrying the Genotype experience Outcome - model may not converge\n")	
+
+	cat("\n")
+
+	####################
+	## begin analysis ##
+	####################
 
 	# MR
 	cat("Run MR model\n")
@@ -73,6 +101,7 @@ gmte_binary = function(Y,T,G,Z,Link="logit",D,alpha=0.05)
 	MarMR       = summary(margins(MRfit))
 	MR          = MarMR[MarMR[,"factor"]=="Tshat",2]
 	sMR         = MarMR[MarMR[,"factor"]=="Tshat",3]
+	pMR         = MarMR[MarMR[,"factor"]=="Tshat",5]
 
 	# Corrected-As treated (CAT)
 	cat("Run CAT model\n")
@@ -81,6 +110,7 @@ gmte_binary = function(Y,T,G,Z,Link="logit",D,alpha=0.05)
 	MarCAT     = summary(margins(CATfit))
 	CAT        = MarCAT[MarCAT[,"factor"]=="Tcat",2]
 	sCAT       = MarCAT[MarCAT[,"factor"]=="Tcat",3]
+	pCAT       = MarCAT[MarCAT[,"factor"]=="Tcat",5]
 
 	# GMTE(1)
 	cat("Run GMTE(1) model\n")
@@ -88,6 +118,7 @@ gmte_binary = function(Y,T,G,Z,Link="logit",D,alpha=0.05)
 	MarGMTE1 = summary(margins(GMTE1fit))
 	GMTE1    = MarGMTE1[MarGMTE1[,"factor"]=="Tstar",2]
 	sGMTE1   = MarGMTE1[MarGMTE1[,"factor"]=="Tstar",3]
+	pGMTE1   = MarGMTE1[MarGMTE1[,"factor"]=="Tstar",5]
 
 	# GMTE(0)
 	cat("Run GMTE(0) model\n")
@@ -97,6 +128,7 @@ gmte_binary = function(Y,T,G,Z,Link="logit",D,alpha=0.05)
 	MarGMTE0 = summary(margins(GMTE0fit))
 	GMTE0    = MarGMTE0[MarGMTE0[,"factor"]=="ts",2]
 	sGMTE0   = MarGMTE0[MarGMTE0[,"factor"]=="ts",3]
+	pGMTE0   = MarGMTE0[MarGMTE0[,"factor"]=="ts",5]
 
 	# RGMTE
 	cat("Run RGMTE model\n")
@@ -104,6 +136,7 @@ gmte_binary = function(Y,T,G,Z,Link="logit",D,alpha=0.05)
 	MarRGMTE = summary(margins(RGMTEfit))
 	RGMTE    = MarRGMTE[MarRGMTE[,"factor"]=="Tstar",2]
 	sRGMTE   = MarRGMTE[MarRGMTE[,"factor"]=="Tstar",3]
+	pRGMTE   = MarRGMTE[MarRGMTE[,"factor"]=="Tstar",5]
 
 	# Combined methods
 	cat("Combined methods\n")
@@ -118,14 +151,13 @@ gmte_binary = function(Y,T,G,Z,Link="logit",D,alpha=0.05)
 	Ests         = c(MR,RGMTE,CAT); SEs = c(sMR,sRGMTE,sCAT)
 	RGMTE_MR_CAT = gmte_combine(Ests,SEs,alpha)
 
-
 	# Final output
 	FullCombined      = matrix(nrow=10,ncol=6)
-	FullCombined[1,]  = c(as.numeric(MarCAT[MarCAT[,"factor"]=="Tcat",c(2,3,5)]),NA,NA,NA)
-	FullCombined[2,]  = c(as.numeric(MarGMTE0[MarGMTE0[,"factor"]=="ts",c(2,3,5)]),NA,NA,NA)
-	FullCombined[3,]  = c(as.numeric(MarGMTE1[MarGMTE1[,"factor"]=="Tstar",c(2,3,5)]),NA,NA,NA)
-	FullCombined[4,]  = c(as.numeric(MarRGMTE[MarRGMTE[,"factor"]=="Tstar",c(2,3,5)]),NA,NA,NA)
-	FullCombined[5,]  = c(as.numeric(MarMR[MarMR[,"factor"]=="Tshat",c(2,3,5)]),NA,NA,NA)
+	FullCombined[1,]  = c(CAT,sCAT,pCAT,NA,NA,NA)
+	FullCombined[2,]  = c(GMTE0,sGMTE0,pGMTE0,NA,NA,NA)
+	FullCombined[3,]  = c(GMTE1,sGMTE1,pGMTE1,NA,NA,NA)
+	FullCombined[4,]  = c(RGMTE,sRGMTE,pRGMTE,NA,NA,NA)
+	FullCombined[5,]  = c(MR,sMR,pMR,NA,NA,NA)
 	FullCombined[6,]  = RGMTE_MR
 	FullCombined[7,]  = RGMTE_CAT
 	FullCombined[8,]  = MR_CAT

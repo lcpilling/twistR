@@ -53,13 +53,29 @@ gmte_continuous = function(Y,T,G,Z,D,alpha=0.05)
 	D=D[,colnames(D) %in% c(Y,T,G,Zs)]
 	D=as.data.frame(na.omit(D))
 
-	cat(paste0("- N participants with complete data [", nrow(D), "]\n\n"))
-
 	## create variables named Y, T and G for formulas, and compute T* (interaction between T and G)
 	D[,"Y"]=D[,Y]
 	D[,"T"]=D[,T]
 	D[,"G"]=D[,G]
 	D[,"Tstar"] = D[,"T"]*D[,"G"]
+
+	## enough data for people on treatment with genotype?
+	cat(paste0("- N with complete data [", nrow(D), "]\n"))
+
+	n_treated=length(D[ D[,"T"] == 1 , "T"])
+	cat(paste0("- N on treatment (T=1) [", n_treated, "]\n"))
+	
+	n_treated_geno=length(D[ D[,"T"] == 1 & D[,"G"] != 0 , "T"])
+	cat(paste0("- N on treatment (T=1) & carrying genotype (G!=0) [", n_treated_geno, "]\n"))
+	
+	if (n_treated_geno == 0) stop("Not enough observations for analysis")	
+	if (n_treated_geno < 100) cat("Warning: Low numbers of Treated individuals carrying the Genotype - model may not converge\n")	
+
+	cat("\n")
+
+	####################
+	## begin analysis ##
+	####################
 
 	# MR
 	cat("Run MR model\n")
@@ -112,7 +128,6 @@ gmte_continuous = function(Y,T,G,Z,D,alpha=0.05)
 	GMTE1_CAT    = gmte_combine(Ests,SEs,alpha)
 	Ests         = c(MR,RGMTE,CAT); SEs = c(sMR,sRGMTE,sCAT)
 	RGMTE_MR_CAT = gmte_combine(Ests,SEs,alpha)
-
 
 	# Final output
 	FullCombined      = matrix(nrow=10,ncol=6)

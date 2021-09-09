@@ -18,7 +18,7 @@ If you use this package please cite
       - [gmte_binary()](#gmte_binary)
       - [gmte_continuous()](#gmte_continuous)
       - [gmte_aalen()](#gmte_aalen)
-  - [Output and example](#output-and-example)
+  - [Output and examples](#output-and-examples)
       - [Example using binary outcome](#example-using-binary-outcome)
       - [Which estimate should I use?](#which-estimate-should-i-use)
       - [Example using Aalen additive hazards](#example-using-aalen-additive-hazards)

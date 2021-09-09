@@ -98,8 +98,6 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100,alpha=0.05)
 	D=D[,colnames(D) %in% c(Y_t0,Y_t1,Y_d,T,G,Zs)]
 	D=as.data.frame(na.omit(D))
 
-	cat(paste0("- N participants with complete data [", nrow(D), "]\n\n"))
-
 	## create variables named Y, T and G for formulas, and compute T* (interaction between T and G)
 	D[,"Y_t0"]=D[,Y_t0]
 	D[,"Y_t1"]=D[,Y_t1]
@@ -108,10 +106,34 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100,alpha=0.05)
 	D[,"G"]=D[,G]
 	D[,"Tstar"] = D[,"T"]*D[,"G"]
 
+	## enough data for people on treatment with genotype?
+	cat(paste0("- N with complete data [", nrow(D), "]\n"))
+
+	n_treated=length(D[ D[,"T"] == 1 , "T"])
+	cat(paste0("- N on treatment (T=1) [", n_treated, "]\n"))
+	
+	n_treated_geno=length(D[ D[,"T"] == 1 & D[,"G"] != 0 , "T"])
+	cat(paste0("- N on treatment (T=1) & carrying genotype (G!=0) [", n_treated_geno, "]\n"))
+	
+	n_treated_geno_outcome=length(D[ D[,"T"] == 1 & D[,"G"] != 0  & D[,"Y_d"] == 1 , "T"])
+	cat(paste0("- N on treatment (T=1) & carrying genotype (G!=0) & experience event (Y_d=1) [", n_treated_geno_outcome, "]\n"))
+	
+	if (n_treated_geno == 0) stop("Not enough observations for analysis")	
+	if (n_treated_geno < 100) cat("Warning: Low numbers of Treated individuals carrying the Genotype - model may not converge\n")	
+
+	if (n_treated_geno_outcome == 0) stop("Not enough participants for analysis")	
+	if (n_treated_geno_outcome < 100) cat("Warning: Low numbers of Treated individuals carrying the Genotype experience Outcome - model may not converge\n")	
+
 	## any exit dates before enter dates?
 	t1_before_t0=D[ D[,"Y_t1"] < D[,"Y_t0"],"Y_t1"]
 	if (length(t1_before_t0)>0) warning("Some exit dates are before enter dates - check your input data")
 	
+	cat("\n")
+
+	####################
+	## begin analysis ##
+	####################
+
 	## survival object
 	survival_object = Surv(D[,"Y_t0"],D[,"Y_t1"],D[,"Y_d"])
 
@@ -166,7 +188,6 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100,alpha=0.05)
 	GMTE1_CAT    = gmte_combine(Ests,SEs,alpha)
 	Ests         = c(MR,RGMTE,CAT); SEs = c(sMR,sRGMTE,sCAT)
 	RGMTE_MR_CAT = gmte_combine(Ests,SEs,alpha)
-
 
 	# Final output
 	FullCombined      = matrix(nrow=10,ncol=6)
