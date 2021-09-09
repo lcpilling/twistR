@@ -66,7 +66,6 @@ gmte_binary = function(Y,T,G,Z,Link="logit",D,alpha=0.05)
 	
 	## check outcome is a binary variable [0]/[1]
 	Y_bin=unique(D[,"Y"])
-	Y_bin=unique(Y)
 	if (length(Y_bin) != 2) stop(paste0("Outcome Y [", Y, "] needs to be a binary variable with only two values: 0 or 1"))
 	if (! Y_bin[1] %in% c(0,1) | ! Y_bin[2] %in% c(0,1)) stop(paste0("Outcome Y [", Y, "] needs to be a binary variable with only two values: 0 or 1"))
 
