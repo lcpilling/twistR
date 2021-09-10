@@ -50,7 +50,7 @@ G | The genotype variable name (string) which appears in data.frame `D`. Normall
 Z | A string containing the model covariates to appear in the `glm()` models (for example "age+sex"). All need to be in data.frame `D`.
 D | A data.frame containing the above variables.
 Link | Link function for the `glm()` - needs to be one of "logit","probit" or "identity". If unspecified the default is "logit".
-alpha | The p-value threshold for the chi-square test, estimating whether two estimates should be combined. Default is 0.05.
+alpha | The p-value threshold for the chi-square test, assessing whether two estimates should be combined. Default is 0.05.
 
 #### gmte_continuous()
 
@@ -61,7 +61,7 @@ T | The treatment variable name (string) which appears in data.frame `D`. Assume
 G | The genotype variable name (string) which appears in data.frame `D`. Normally binary (e.g. comparing homozygous rare individuals to the rest of the population).
 Z | A string containing the model covariates to appear in the `glm()` models (for example "age+sex"). All need to be in data.frame `D`.
 D | A data.frame containing the above variables.
-alpha | The p-value threshold for the chi-square test, estimating whether two estimates should be combined. Default is 0.05.
+alpha | The p-value threshold for the chi-square test, assessing whether two estimates should be combined. Default is 0.05.
 
 #### gmte_aalen()
 
@@ -75,7 +75,7 @@ G | The genotype variable name (string) which appears in data.frame `D`. Normall
 Z | A string containing the model covariates to appear in the `glm()` models (for example "age+sex"). All need to be in data.frame `D`. Unless otherwise specified covariates will be assumed to be time invarying i.e. the `const()` wrapper will be added. See `aalen()` documentation in the [`timereg`](https://cran.r-project.org/web/packages/timereg/) package.
 D | A data.frame containing the above variables.
 Nsim | Number of simulations to perform in the `aalen()` models. Default is 100.
-alpha | The p-value threshold for the chi-square test, estimating whether two estimates should be combined. Default is 0.05.
+alpha | The p-value threshold for the chi-square test, assessing whether two estimates should be combined. Default is 0.05.
 
 ## Output and examples
 
@@ -112,8 +112,6 @@ MR_CAT | -3.842414e+00 | 0.04145881 | 0.000000e+00 | 20820.492332 | 0.0000000 | 
 GMTE1_CAT | -3.522933e-01 | 0.01352266 | 0.000000e+00 | 28749.387485 | 0.0000000 | 0
 RGMTE_MR_CAT | -4.493672e-01 | 0.01517140 | 0.000000e+00 | 28554.130703 | 0.0000000 | 0
 
-We can express the GMTE estimand as the average causal effect if everyone could receive moderated treatment level T* = 1 (i.e. the full or enhanced effect) versus if everyone could receive treatment level T* = 0 (i.e. no enhanced effect).
-
 #### Which estimate should I use?
 
 To understand which estimate is best to use, the user needs to consider the following:
@@ -121,9 +119,11 @@ To understand which estimate is best to use, the user needs to consider the foll
 * the assumptions made by each method and whether they are plausible,
 * whether a pair or triplet of estimates (such as the MR and RGMTE estimates) are sufficiently similar to combine (default alpha 0.05 for Q-statistic (`Qp`)).
 
-Though the Robust GMTE (RGMTE) estimate is often the most appropriate, in another context the assumptions may not be satified and a combined estimate may be better. For this reason we do not automatically give a recommendation when the functions are executed. For the combined estimates the `Combine?` column simply reports whether the p-value for the Q-statistic (`Qp`) is >0.05 i.e. the estimates do not significantly differ. This does not necesssarily mean it is the best choice. For futher information on the assumptions tested and decision framework please see the published manuscript (open access in PLoS Genetics https://doi.org/10.1371/journal.pgen.1009783). 
+Though the Robust GMTE (RGMTE) estimate is often the most appropriate, in some situations the assumptions may not be satisfied and a combined estimate may be better. For this reason we do not automatically give a recommendation when the analysis is performed. For the combined estimates the `Combine?` column simply reports whether the p-value for the Q-statistic (`Qp`) is >0.05 i.e. the estimates do not significantly differ. This does not necesssarily mean it is the best choice. For futher information on the assumptions tested and decision framework please see the published manuscript (open access in PLoS Genetics https://doi.org/10.1371/journal.pgen.1009783). 
 
 #### What does the estimate mean?
+
+We can express the GMTE estimand as the average causal effect if everyone could receive moderated treatment level T* = 1 (i.e. the full or enhanced effect) versus if everyone could receive treatment level T* = 0 (i.e. no enhanced effect).
 
 * For a binary analysis, the `Est` is the risk difference if all people could experience the same treatment effect as those with genotype G=1 versus if all people could experience the treatment effect as those with genotype G=0.
 * For a continuous analysis, the `Est` is the mean difference in outcome (units) if all people could experience the same treatment effect as those with genotype G=1 versus if all people could experience the treatment effect as those with genotype G=0.
