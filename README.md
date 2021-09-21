@@ -1,4 +1,5 @@
 <img align="right" src="https://raw.githubusercontent.com/lukepilling/twistR/main/twistR_hex_v1.png" width="200" />
+
 # twistR
 TWIST (Triangulation WIthin A STudy) analysis in R. 
 
