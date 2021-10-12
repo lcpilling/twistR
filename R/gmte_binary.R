@@ -95,7 +95,7 @@ gmte_binary = function(Y,T,G,Z,Link="logit",D,alpha=0.05)
 
 	# MR
 	cat("Run MR model\n")
-	D[,"Tshat"] = glm(as.formula(paste0("Tstar~G+",Z)),family=binomial(link=Link),data=D)$fitted
+	D[,"Tshat"] = glm(as.formula(paste0("Tstar~G+",Z)),data=D)$fitted
 	MRfit       = glm(as.formula(paste0("Y~Tshat+",Z)),family=binomial(link=Link),data=D)
 	MarMR       = summary(margins(MRfit))
 	MR          = MarMR[MarMR[,"factor"]=="Tshat",2]

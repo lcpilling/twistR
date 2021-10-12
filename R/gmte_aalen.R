@@ -139,7 +139,7 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100,alpha=0.05)
 
 	# MR
 	cat("Run MR model\n")
-	D[,"Tshat"] = glm(as.formula(paste0("Tstar~G+",Zunwrapped)),family=binomial(link="logit"),data=D)$fitted
+	D[,"Tshat"] = glm(as.formula(paste0("Tstar~G+",Zunwrapped)),data=D)$fitted
 	MRfit       = invisible(aalen(as.formula(paste0("survival_object~const(Tshat)+",Zwrapped)),data=D,n.sim=Nsim))
 	MR          = coef(MRfit)["const(Tshat)",1]
 	sMR         = coef(MRfit)["const(Tshat)",2]
