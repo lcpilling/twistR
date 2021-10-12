@@ -173,7 +173,7 @@ gmte_binary = function(Y,T,G,Z,Link="logit",D,alpha=0.05)
 
 	end_time = Sys.time()
 	time_taken = round(as.numeric(end_time-start_time),1)
-	cat("\nAnalysis completed in ", time_taken, " seconds\n")
+	cat(paste0("\nAnalysis completed in ", time_taken, " seconds\n"))
 
 	output_list=list(model="gmte_binary",CAT=MarCAT,GMTE0=MarGMTE0,GMTE1=MarGMTE1,RGMTE=MarRGMTE,MR=MarMR,FullCombined=FullCombined)
 	class(output_list)="twistR_GMTE"
