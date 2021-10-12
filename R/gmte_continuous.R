@@ -151,7 +151,7 @@ gmte_continuous = function(Y,T,G,Z,D,alpha=0.05)
 	print(FullCombined)
 
 	end_time = Sys.time()
-	time_taken = round(as.numeric(end.time-start.time),1)
+	time_taken = round(as.numeric(end_time-start_time),1)
 	cat("Analysis completed in ", time_taken, " seconds\n")
 
 	output_list=list(model="gmte_continuous",CAT=CATfit,GMTE0=GMTE0fit,GMTE1=GMTE1fit,RGMTE=RGMTEfit,MR=MRfit,FullCombined=FullCombined)
