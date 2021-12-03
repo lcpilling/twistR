@@ -11,7 +11,7 @@ gmte_continuous(Y, T, G, Z, D, alpha = 0.05)
 
 \item{T}{The treatment variable name (string) which appears in data.frame \code{D}. Assumed to be binary.}
 
-\item{G}{The genotype variable name (string) which appears in data.frame \code{D}. Normally binary (e.g. comparing homozygous rare individuals to the rest of the population).}
+\item{G}{The genotype variable name (string) which appears in data.frame \code{D}. Normally binary (e.g. comparing homozygous rare individuals to the rest of the population) but can be additive (0, 1, 2) or a score of multiple variants if desired.}
 
 \item{Z}{A string containing the model covariates to appear in the \code{glm()} models (for example "age+sex"). All need to be in data.frame \code{D}.}
 
