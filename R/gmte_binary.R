@@ -4,7 +4,7 @@
 #'
 #' @param Y The binary outcome variable name (string) which appears in data.frame \code{D}.
 #' @param T The treatment variable name (string) which appears in data.frame \code{D}. Assumed to be binary.
-#' @param G The genotype variable name (string) which appears in data.frame \code{D}. Normally binary (e.g. comparing homozygous rare individuals to the rest of the population).
+#' @param G The genotype variable name (string) which appears in data.frame \code{D}. Normally binary (e.g. comparing homozygous rare individuals to the rest of the population) but can be additive (0, 1, 2) or a score of multiple variants if desired.
 #' @param Z A string containing the model covariates to appear in the \code{glm()} models (for example "age+sex"). All need to be in data.frame \code{D}.
 #' @param D A data.frame containing the above variables.
 #' @param Link Link function for the \code{glm()} - needs to be one of "logit","probit" or "identity". If unspecified the default is "logit".
@@ -77,10 +77,7 @@ gmte_binary = function(Y,T,G,Z,Link="logit",D,alpha=0.05)
 	cat(paste0("- N on treatment (T=1) [", n_treated, "]\n"))
 	
 	n_treated_geno=length(D[ D[,"T"] == 1 & D[,"G"] != 0 , "T"])
-	cat(paste0("- N on treatment (T=1) & carrying genotype (G!=0) [", n_treated_geno, "]\n"))
-	
 	n_treated_geno_outcome=length(D[ D[,"T"] == 1 & D[,"G"] != 0  & D[,"Y"] == 1 , "T"])
-	cat(paste0("- N on treatment (T=1) & carrying genotype (G!=0) & experience event (Y=1) [", n_treated_geno_outcome, "]\n"))
 	
 	if (n_treated_geno == 0) stop("Not enough observations for analysis")	
 	if (n_treated_geno < 100) cat("Warning: Low numbers of Treated individuals carrying the Genotype - model may not converge\n")	

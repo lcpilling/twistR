@@ -6,7 +6,7 @@
 #' @param Y_t1 Variable name (string) for when participants "exit" the model, which appears in data.frame \code{D}. Either days since start of exposure period (numeric) or in date format from the \code{as.Date()} function.
 #' @param Y_d Variable name for the binary "event" variable (string) which appears in data.frame \code{D}.
 #' @param T The treatment variable name (string) which appears in data.frame \code{D}. Assumed to be binary.
-#' @param G The genotype variable name (string) which appears in data.frame \code{D}. Normally binary (e.g. comparing homozygous rare individuals to the rest of the population).
+#' @param G The genotype variable name (string) which appears in data.frame \code{D}. Normally binary (e.g. comparing homozygous rare individuals to the rest of the population) but can be additive (0, 1, 2) or a score of multiple variants if desired.
 #' @param Z A string containing the model covariates to appear in the \code{glm()} models (for example "age+sex"). All need to be in data.frame \code{D}.
 #' @param D A data.frame containing the above variables.
 #' @param Nsim Number of simulations to perform in the \code{aalen()} models. Default is 100.
@@ -114,10 +114,7 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100,alpha=0.05)
 	cat(paste0("- N on treatment (T=1) [", n_treated, "]\n"))
 	
 	n_treated_geno=length(D[ D[,"T"] == 1 & D[,"G"] != 0 , "T"])
-	cat(paste0("- N on treatment (T=1) & carrying genotype (G!=0) [", n_treated_geno, "]\n"))
-	
 	n_treated_geno_outcome=length(D[ D[,"T"] == 1 & D[,"G"] != 0  & D[,"Y_d"] == 1 , "T"])
-	cat(paste0("- N on treatment (T=1) & carrying genotype (G!=0) & experience event (Y_d=1) [", n_treated_geno_outcome, "]\n"))
 	
 	if (n_treated_geno == 0) stop("Not enough observations for analysis")	
 	if (n_treated_geno < 100) cat("Warning: Low numbers of Treated individuals carrying the Genotype - model may not converge\n")	
