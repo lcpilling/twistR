@@ -4,7 +4,7 @@
 \alias{gmte_binary}
 \title{gmte_binary}
 \usage{
-gmte_binary(Y, T, G, Z, Link = "logit", D, alpha = 0.05)
+gmte_binary(Y, T, G, Z, D, Link = "logit", alpha = 0.05, verbose = FALSE)
 }
 \arguments{
 \item{Y}{The binary outcome variable name (string) which appears in data.frame \code{D}.}
@@ -15,11 +15,13 @@ gmte_binary(Y, T, G, Z, Link = "logit", D, alpha = 0.05)
 
 \item{Z}{A string containing the model covariates to appear in the \code{glm()} models (for example "age+sex"). All need to be in data.frame \code{D}.}
 
-\item{Link}{Link function for the \code{glm()} - needs to be one of "logit","probit" or "identity". If unspecified the default is "logit".}
-
 \item{D}{A data.frame containing the above variables.}
 
+\item{Link}{Link function for the \code{glm()} - needs to be one of "logit","probit" or "identity". If unspecified the default is "logit".}
+
 \item{alpha}{The p-value threshold for the chi-square test, estimating whether two estimates should be combined. Default is 0.05.}
+
+\item{verbose}{Return lots of output - useful for error checking. Default is FALSE.}
 }
 \value{
 An object of class \code{twistR_GMTE} containing the following components:\describe{

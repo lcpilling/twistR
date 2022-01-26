@@ -9,6 +9,7 @@
 #' @param D A data.frame containing the above variables.
 #' @param Link Link function for the \code{glm()} - needs to be one of "logit","probit" or "identity". If unspecified the default is "logit".
 #' @param alpha The p-value threshold for the chi-square test, estimating whether two estimates should be combined. Default is 0.05.
+#' @param verbose Return lots of output - useful for error checking. Default is FALSE.
 #' @return An object of class \code{twistR_GMTE} containing the following components:\describe{
 #' \item{\code{CAT}}{The summary statistics from the Corrected As Treated (CAT) analysis.}
 #' \item{\code{GMTE1}}{The summary statistics from the GMTE(1) analysis (i.e. in the treated individuals).}
@@ -29,7 +30,7 @@
 #' Link="logit"
 #' results=gmte_binary(Y,T,G,Z,D,Link)
 
-gmte_binary = function(Y,T,G,Z,Link="logit",D,alpha=0.05)
+gmte_binary = function(Y,T,G,Z,D,Link="logit",alpha=0.05,verbose=FALSE)
 {
 	start_time = Sys.time()
 	cat("TWIST (Triangulation WIthin A STudy) analysis in R - binary outcome\n")
@@ -64,17 +65,26 @@ gmte_binary = function(Y,T,G,Z,Link="logit",D,alpha=0.05)
 	D[,"T"]=D[,T]
 	D[,"G"]=D[,G]
 	D[,"Tstar"] = D[,"T"]*D[,"G"]
-	
+	D[,"Tshat"] = glm(as.formula(paste0("Tstar~G+",Z)),data=D)$fitted
+
 	## check outcome is a binary variable [0]/[1]
 	Y_bin=unique(D[,"Y"])
 	if (length(Y_bin) != 2) stop(paste0("Outcome Y [", Y, "] needs to be a binary variable with only two values: 0 or 1"))
 	if (! Y_bin[1] %in% c(0,1) | ! Y_bin[2] %in% c(0,1)) stop(paste0("Outcome Y [", Y, "] needs to be a binary variable with only two values: 0 or 1"))
 
 	## enough data for people on treatment with genotype?
-	cat(paste0("- N with complete data [", nrow(D), "]\n"))
+	n_total=nrow(D)
+	cat(paste0("- N with complete data [", n_total, "]\n"))
 
 	n_treated=length(D[ D[,"T"] == 1 , "T"])
 	cat(paste0("- N on treatment (T=1) [", n_treated, "]\n"))
+	
+	if (n_treated == 0) stop("Need to include some treated individuals")	
+	if (n_treated < 100) cat("Warning: Low numbers of treated individuals - model may not converge\n")	
+
+	n_untreated=n_total-n_treated
+	if (n_untreated == 0) stop("Need to include untreated individuals for control group")	
+	if (n_untreated < 100) cat("Warning: Low numbers of untreated individuals - model may not converge\n")	
 	
 	n_treated_geno=length(D[ D[,"T"] == 1 & D[,"G"] != 0 , "T"])
 	n_treated_geno_outcome=length(D[ D[,"T"] == 1 & D[,"G"] != 0  & D[,"Y"] == 1 , "T"])
@@ -91,15 +101,6 @@ gmte_binary = function(Y,T,G,Z,Link="logit",D,alpha=0.05)
 	## begin analysis ##
 	####################
 
-	# MR
-	cat("Run MR model\n")
-	D[,"Tshat"] = glm(as.formula(paste0("Tstar~G+",Z)),data=D)$fitted
-	MRfit       = glm(as.formula(paste0("Y~Tshat+",Z)),family=binomial(link=Link),data=D)
-	MarMR       = summary(margins(MRfit))
-	MR          = MarMR[MarMR[,"factor"]=="Tshat",2]
-	sMR         = MarMR[MarMR[,"factor"]=="Tshat",3]
-	pMR         = MarMR[MarMR[,"factor"]=="Tshat",5]
-
 	# Corrected-As treated (CAT)
 	cat("Run CAT model\n")
 	D[,"Tcat"] = D[,"T"]*mean(D[,"G"][D[,"T"]==1])
@@ -108,14 +109,7 @@ gmte_binary = function(Y,T,G,Z,Link="logit",D,alpha=0.05)
 	CAT        = MarCAT[MarCAT[,"factor"]=="Tcat",2]
 	sCAT       = MarCAT[MarCAT[,"factor"]=="Tcat",3]
 	pCAT       = MarCAT[MarCAT[,"factor"]=="Tcat",5]
-
-	# GMTE(1)
-	cat("Run GMTE(1) model\n")
-	GMTE1fit = glm(as.formula(paste0("Y~T+Tstar+",Z)),family=binomial(link=Link),data=D)
-	MarGMTE1 = summary(margins(GMTE1fit))
-	GMTE1    = MarGMTE1[MarGMTE1[,"factor"]=="Tstar",2]
-	sGMTE1   = MarGMTE1[MarGMTE1[,"factor"]=="Tstar",3]
-	pGMTE1   = MarGMTE1[MarGMTE1[,"factor"]=="Tstar",5]
+	if (verbose)  print(CATfit)
 
 	# GMTE(0)
 	cat("Run GMTE(0) model\n")
@@ -126,6 +120,16 @@ gmte_binary = function(Y,T,G,Z,Link="logit",D,alpha=0.05)
 	GMTE0    = MarGMTE0[MarGMTE0[,"factor"]=="ts",2]
 	sGMTE0   = MarGMTE0[MarGMTE0[,"factor"]=="ts",3]
 	pGMTE0   = MarGMTE0[MarGMTE0[,"factor"]=="ts",5]
+	if (verbose)  print(GMTE0fit)
+
+	# GMTE(1)
+	cat("Run GMTE(1) model\n")
+	GMTE1fit = glm(as.formula(paste0("Y~T+Tstar+",Z)),family=binomial(link=Link),data=D)
+	MarGMTE1 = summary(margins(GMTE1fit))
+	GMTE1    = MarGMTE1[MarGMTE1[,"factor"]=="Tstar",2]
+	sGMTE1   = MarGMTE1[MarGMTE1[,"factor"]=="Tstar",3]
+	pGMTE1   = MarGMTE1[MarGMTE1[,"factor"]=="Tstar",5]
+	if (verbose)  print(MarGMTE1)
 
 	# RGMTE
 	cat("Run RGMTE model\n")
@@ -134,6 +138,31 @@ gmte_binary = function(Y,T,G,Z,Link="logit",D,alpha=0.05)
 	RGMTE    = MarRGMTE[MarRGMTE[,"factor"]=="Tstar",2]
 	sRGMTE   = MarRGMTE[MarRGMTE[,"factor"]=="Tstar",3]
 	pRGMTE   = MarRGMTE[MarRGMTE[,"factor"]=="Tstar",5]
+	if (verbose)  print(MarRGMTE)
+
+	# MR
+	cat("Run MR model\n")
+	MRfit       = glm(as.formula(paste0("Y~Tshat+",Z)),family=binomial(link=Link),data=D)
+	MarMR       = summary(margins(MRfit))
+	MR          = MarMR[MarMR[,"factor"]=="Tshat",2]
+	sMR         = MarMR[MarMR[,"factor"]=="Tshat",3]
+	pMR         = MarMR[MarMR[,"factor"]=="Tshat",5]
+	if (verbose)  print(MRfit)
+
+	# Partial results DF
+	if (verbose)
+	{
+		FullCombined      = matrix(nrow=5,ncol=3)
+		FullCombined[1,]  = c(CAT,sCAT,pCAT)
+		FullCombined[2,]  = c(GMTE0,sGMTE0,pGMTE0)
+		FullCombined[3,]  = c(GMTE1,sGMTE1,pGMTE1)
+		FullCombined[4,]  = c(RGMTE,sRGMTE,pRGMTE)
+		FullCombined[5,]  = c(MR,sMR,pMR)
+		colnames(FullCombined) = c("Est","SE","EstP")
+		rownames(FullCombined) = c("CAT","GMTE0","GMTE1","RGMTE","MR")
+		cat("\nResults (initial):\n")
+		print(FullCombined)
+	}
 
 	# Combined methods
 	cat("Combined methods\n")

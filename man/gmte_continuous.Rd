@@ -4,7 +4,7 @@
 \alias{gmte_continuous}
 \title{gmte_continuous}
 \usage{
-gmte_continuous(Y, T, G, Z, D, alpha = 0.05)
+gmte_continuous(Y, T, G, Z, D, alpha = 0.05, verbose = FALSE)
 }
 \arguments{
 \item{Y}{The continuous outcome variable name (string) which appears in data.frame \code{D}.}
@@ -18,6 +18,8 @@ gmte_continuous(Y, T, G, Z, D, alpha = 0.05)
 \item{D}{A data.frame containing the above variables.}
 
 \item{alpha}{The p-value threshold for the chi-square test, estimating whether two estimates should be combined. Default is 0.05.}
+
+\item{verbose}{Return lots of output - useful for error checking. Default is FALSE.}
 }
 \value{
 An object of class \code{twistR_GMTE} containing the following components:\describe{

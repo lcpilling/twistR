@@ -8,6 +8,7 @@
 #' @param Z A string containing the model covariates to appear in the \code{glm()} models (for example "age+sex"). All need to be in data.frame \code{D}.
 #' @param D A data.frame containing the above variables.
 #' @param alpha The p-value threshold for the chi-square test, estimating whether two estimates should be combined. Default is 0.05.
+#' @param verbose Return lots of output - useful for error checking. Default is FALSE.
 #' @return An object of class \code{twistR_GMTE} containing the following components:\describe{
 #' \item{\code{CAT}}{The summary statistics from the Corrected As Treated (CAT) analysis.}
 #' \item{\code{GMTE1}}{The summary statistics from the GMTE(1) analysis (i.e. in the treated individuals).}
@@ -27,7 +28,7 @@
 #' Z="age+PC1+PC2+PC3+PC4+PC5+PC6+PC7+PC8+PC9+PC10"
 #' results=gmte_continuous(Y,T,G,Z,D)
 
-gmte_continuous = function(Y,T,G,Z,D,alpha=0.05)
+gmte_continuous = function(Y,T,G,Z,D,alpha=0.05,verbose=FALSE)
 {
 	start_time = Sys.time()
 	cat("TWIST (Triangulation WIthin A STudy) analysis in R - continuous outcome\n")
@@ -59,12 +60,21 @@ gmte_continuous = function(Y,T,G,Z,D,alpha=0.05)
 	D[,"T"]=D[,T]
 	D[,"G"]=D[,G]
 	D[,"Tstar"] = D[,"T"]*D[,"G"]
+	D[,"Tshat"] = lm(as.formula(paste0("Tstar~G+",Z)),data=D)$fitted
 
 	## enough data for people on treatment with genotype?
-	cat(paste0("- N with complete data [", nrow(D), "]\n"))
+	n_total=nrow(D)
+	cat(paste0("- N with complete data [", n_total, "]\n"))
 
 	n_treated=length(D[ D[,"T"] == 1 , "T"])
 	cat(paste0("- N on treatment (T=1) [", n_treated, "]\n"))
+	
+	if (n_treated == 0) stop("Need to include some treated individuals")	
+	if (n_treated < 100) cat("Warning: Low numbers of treated individuals - model may not converge\n")	
+
+	n_untreated=n_total-n_treated
+	if (n_untreated == 0) stop("Need to include untreated individuals for control group")	
+	if (n_untreated < 100) cat("Warning: Low numbers of untreated individuals - model may not converge\n")	
 	
 	n_treated_geno=length(D[ D[,"T"] == 1 & D[,"G"] != 0 , "T"])
 	
@@ -77,14 +87,6 @@ gmte_continuous = function(Y,T,G,Z,D,alpha=0.05)
 	## begin analysis ##
 	####################
 
-	# MR
-	cat("Run MR model\n")
-	D[,"Tshat"] = lm(as.formula(paste0("Tstar~G+",Z)),data=D)$fitted
-	MRfit       = lm(as.formula(paste0("Y~Tshat+",Z)),data=D)
-	MR          = summary(MRfit)$coef["Tshat",1]
-	sMR         = summary(MRfit)$coef["Tshat",2]
-	pMR         = summary(MRfit)$coef["Tshat",4]
-
 	# Corrected-As treated (CAT)
 	cat("Run CAT model\n")
 	D[,"Tcat"] = D[,"T"]*mean(D[,"G"][D[,"T"]==1])
@@ -92,13 +94,7 @@ gmte_continuous = function(Y,T,G,Z,D,alpha=0.05)
 	CAT        = summary(CATfit)$coef["Tcat",1]
 	sCAT       = summary(CATfit)$coef["Tcat",2]
 	pCAT       = summary(CATfit)$coef["Tcat",4]
-	
-	# GMTE(1)
-	cat("Run GMTE(1) model\n")
-	GMTE1fit = lm(as.formula(paste0("Y~T+Tstar+",Z)),data=D)
-	GMTE1    = summary(GMTE1fit)$coef["Tstar",1]
-	sGMTE1   = summary(GMTE1fit)$coef["Tstar",2]
-	pGMTE1   = summary(GMTE1fit)$coef["Tstar",4]
+	if (verbose)  print(CATfit)
 
 	# GMTE(0)
 	cat("Run GMTE(0) model\n")
@@ -108,6 +104,15 @@ gmte_continuous = function(Y,T,G,Z,D,alpha=0.05)
 	GMTE0    = summary(GMTE0fit)$coef["ts",1]
 	sGMTE0   = summary(GMTE0fit)$coef["ts",2]
 	pGMTE0   = summary(GMTE0fit)$coef["ts",4]
+	if (verbose)  print(GMTE0fit)
+
+	# GMTE(1)
+	cat("Run GMTE(1) model\n")
+	GMTE1fit = lm(as.formula(paste0("Y~T+Tstar+",Z)),data=D)
+	GMTE1    = summary(GMTE1fit)$coef["Tstar",1]
+	sGMTE1   = summary(GMTE1fit)$coef["Tstar",2]
+	pGMTE1   = summary(GMTE1fit)$coef["Tstar",4]
+	if (verbose)  print(GMTE1fit)
 
 	# RGMTE
 	cat("Run RGMTE model\n")
@@ -115,6 +120,30 @@ gmte_continuous = function(Y,T,G,Z,D,alpha=0.05)
 	RGMTE    = summary(RGMTEfit)$coef["Tstar",1]
 	sRGMTE   = summary(RGMTEfit)$coef["Tstar",2]
 	pRGMTE   = summary(RGMTEfit)$coef["Tstar",4]
+	if (verbose)  print(RGMTEfit)
+
+	# MR
+	cat("Run MR model\n")
+	MRfit       = lm(as.formula(paste0("Y~Tshat+",Z)),data=D)
+	MR          = summary(MRfit)$coef["Tshat",1]
+	sMR         = summary(MRfit)$coef["Tshat",2]
+	pMR         = summary(MRfit)$coef["Tshat",4]
+	if (verbose)  print(MRfit)
+
+	# Partial results DF
+	if (verbose)
+	{
+		FullCombined      = matrix(nrow=5,ncol=3)
+		FullCombined[1,]  = c(CAT,sCAT,pCAT)
+		FullCombined[2,]  = c(GMTE0,sGMTE0,pGMTE0)
+		FullCombined[3,]  = c(GMTE1,sGMTE1,pGMTE1)
+		FullCombined[4,]  = c(RGMTE,sRGMTE,pRGMTE)
+		FullCombined[5,]  = c(MR,sMR,pMR)
+		colnames(FullCombined) = c("Est","SE","EstP")
+		rownames(FullCombined) = c("CAT","GMTE0","GMTE1","RGMTE","MR")
+		cat("\nResults (initial):\n")
+		print(FullCombined)
+	}
 
 	# Combined methods
 	cat("Combined methods\n")

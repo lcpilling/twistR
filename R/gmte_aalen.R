@@ -11,6 +11,7 @@
 #' @param D A data.frame containing the above variables.
 #' @param Nsim Number of simulations to perform in the \code{aalen()} models. Default is 100.
 #' @param alpha The p-value threshold for the chi-square test, estimating whether two estimates should be combined. Default is 0.05.
+#' @param verbose Return lots of output - useful for error checking. Default is FALSE.
 #' @return An object of class \code{twistR_GMTE} containing the following components:\describe{
 #' \item{\code{CAT}}{The summary statistics from the Corrected As Treated (CAT) analysis.}
 #' \item{\code{GMTE1}}{The summary statistics from the GMTE(1) analysis (i.e. in the treated individuals).}
@@ -32,7 +33,7 @@
 #' Z="age+PC1+PC2+PC3+PC4+PC5+PC6+PC7+PC8+PC9+PC10"
 #' results=gmte_aalen(Y_t0,Y_t1,Y_d,T,G,Z,D)
 
-gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100,alpha=0.05)
+gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100,alpha=0.05,verbose=FALSE)
 {
 	start_time = Sys.time()
 	cat("TWIST (Triangulation WIthin A STudy) analysis in R - Aalen additive hazards (time-to-event) model\n")
@@ -106,12 +107,21 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100,alpha=0.05)
 	D[,"T"]=D[,T]
 	D[,"G"]=D[,G]
 	D[,"Tstar"] = D[,"T"]*D[,"G"]
+	D[,"Tshat"] = glm(as.formula(paste0("Tstar~G+",Zunwrapped)),data=D)$fitted
 
 	## enough data for people on treatment with genotype?
-	cat(paste0("- N with complete data [", nrow(D), "]\n"))
+	n_total=nrow(D)
+	cat(paste0("- N with complete data [", n_total, "]\n"))
 
 	n_treated=length(D[ D[,"T"] == 1 , "T"])
 	cat(paste0("- N on treatment (T=1) [", n_treated, "]\n"))
+	
+	if (n_treated == 0) stop("Need to include some treated individuals")	
+	if (n_treated < 100) cat("Warning: Low numbers of treated individuals - model may not converge\n")	
+
+	n_untreated=n_total-n_treated
+	if (n_untreated == 0) stop("Need to include untreated individuals for control group")	
+	if (n_untreated < 100) cat("Warning: Low numbers of untreated individuals - model may not converge\n")	
 	
 	n_treated_geno=length(D[ D[,"T"] == 1 & D[,"G"] != 0 , "T"])
 	n_treated_geno_outcome=length(D[ D[,"T"] == 1 & D[,"G"] != 0  & D[,"Y_d"] == 1 , "T"])
@@ -135,14 +145,6 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100,alpha=0.05)
 	## survival object
 	survival_object = Surv(D[,"Y_t0"],D[,"Y_t1"],D[,"Y_d"])
 
-	# MR
-	cat("Run MR model\n")
-	D[,"Tshat"] = glm(as.formula(paste0("Tstar~G+",Zunwrapped)),data=D)$fitted
-	MRfit       = invisible(aalen(as.formula(paste0("survival_object~const(Tshat)+",Zwrapped)),data=D,n.sim=Nsim))
-	MR          = coef(MRfit)["const(Tshat)",1]
-	sMR         = coef(MRfit)["const(Tshat)",2]
-	pMR         = coef(MRfit)["const(Tshat)",5]
-
 	# Corrected-As treated (CAT)
 	cat("Run CAT model\n")
 	D[,"Tcat"] = D[,"T"]*mean(D[,"G"][D[,"T"]==1])
@@ -150,13 +152,7 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100,alpha=0.05)
 	CAT        = coef(CATfit)["const(Tcat)",1]
 	sCAT       = coef(CATfit)["const(Tcat)",2]
 	pCAT       = coef(CATfit)["const(Tcat)",5]
-
-	# GMTE(1)
-	cat("Run GMTE(1) model\n")
-	GMTE1fit = invisible(aalen(as.formula(paste0("survival_object~const(T)+const(Tstar)+",Zwrapped)),data=D,n.sim=Nsim))
-	GMTE1    = coef(GMTE1fit)["const(Tstar)",1]
-	sGMTE1   = coef(GMTE1fit)["const(Tstar)",2]
-	pGMTE1   = coef(GMTE1fit)["const(Tstar)",5]
+	if (verbose)  print(CATfit)
 
 	# GMTE(0)
 	cat("Run GMTE(0) model\n")
@@ -166,6 +162,15 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100,alpha=0.05)
 	GMTE0    = coef(GMTE0fit)["const(ts)",1]
 	sGMTE0   = coef(GMTE0fit)["const(ts)",2]
 	pGMTE0   = coef(GMTE0fit)["const(ts)",5]
+	if (verbose)  print(GMTE0fit)
+
+	# GMTE(1)
+	cat("Run GMTE(1) model\n")
+	GMTE1fit = invisible(aalen(as.formula(paste0("survival_object~const(T)+const(Tstar)+",Zwrapped)),data=D,n.sim=Nsim))
+	GMTE1    = coef(GMTE1fit)["const(Tstar)",1]
+	sGMTE1   = coef(GMTE1fit)["const(Tstar)",2]
+	pGMTE1   = coef(GMTE1fit)["const(Tstar)",5]
+	if (verbose)  print(GMTE1fit)
 
 	# RGMTE
 	cat("Run RGMTE model\n")
@@ -173,7 +178,31 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100,alpha=0.05)
 	RGMTE    = coef(RGMTEfit)["const(Tstar)",1]
 	sRGMTE   = coef(RGMTEfit)["const(Tstar)",2]
 	pRGMTE   = coef(RGMTEfit)["const(Tstar)",5]
+	if (verbose)  print(RGMTEfit)
+	
+	# MR
+	cat("Run MR model\n")
+	MRfit       = invisible(aalen(as.formula(paste0("survival_object~const(Tshat)+",Zwrapped)),data=D,n.sim=Nsim))
+	MR          = coef(MRfit)["const(Tshat)",1]
+	sMR         = coef(MRfit)["const(Tshat)",2]
+	pMR         = coef(MRfit)["const(Tshat)",5]
+	if (verbose)  print(MRfit)
 
+	# Partial results DF
+	if (verbose)
+	{
+		FullCombined      = matrix(nrow=5,ncol=3)
+		FullCombined[1,]  = c(CAT,sCAT,pCAT)
+		FullCombined[2,]  = c(GMTE0,sGMTE0,pGMTE0)
+		FullCombined[3,]  = c(GMTE1,sGMTE1,pGMTE1)
+		FullCombined[4,]  = c(RGMTE,sRGMTE,pRGMTE)
+		FullCombined[5,]  = c(MR,sMR,pMR)
+		colnames(FullCombined) = c("Est","SE","EstP")
+		rownames(FullCombined) = c("CAT","GMTE0","GMTE1","RGMTE","MR")
+		cat("\nResults (initial):\n")
+		print(FullCombined)
+	}
+	
 	# Combined methods
 	cat("Combined methods\n")
 	Ests         = c(MR,RGMTE); SEs = c(sMR,sRGMTE)
