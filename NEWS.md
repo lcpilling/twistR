@@ -1,3 +1,7 @@
+# twistR 0.1.3
+
+* Fix bug with gmte_combine where function fails if CAT estimate doesn't converge - allows returning of GMTE (etc) even if failure of one estimate
+
 # twistR 0.1.2
 
 * Add 'verbose' option to help with error checking/debugging, or if the user simply wants lots of output.
