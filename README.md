@@ -3,7 +3,7 @@
 # twistR
 TWIST (Triangulation WIthin A STudy) analysis in R. 
 
-[![](https://img.shields.io/badge/version-1.0.3-informational.svg)](https://github.com/lukepilling/twistR)
+[![](https://img.shields.io/badge/version-0.1.3-informational.svg)](https://github.com/lukepilling/twistR)
 [![](https://img.shields.io/github/last-commit/lukepilling/twistR.svg)](https://github.com/lukepilling/twistR/commits/master)
 [![](https://img.shields.io/badge/lifecycle-experimental-9cf.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 
