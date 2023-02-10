@@ -1,4 +1,4 @@
-<img align="right" src="https://raw.githubusercontent.com/lukepilling/twistR/main/twistR_hex_v1.png" width="200" />
+<img align="right" src="https://github.com/lukepilling/twistR/raw/main/images/twistR_hex_v1.png" width="200" />
 
 # twistR
 TWIST (Triangulation WIthin A STudy) analysis in R. 
@@ -194,7 +194,7 @@ results=gmte_continuous(Y,T,G,Z,D)
 gmte_plot(results, plot_title = "SLCO1B1*5 effect on LDL during statin treatment")
 ```
 
-<img src="https://raw.githubusercontent.com/lukepilling/twistR/main/twistR_hex_v1.png" width="770" />
+<img src="https://github.com/lukepilling/twistR/raw/main/images/gmte_plot.1.png" width="770" />
 
 
 ```R
@@ -202,5 +202,5 @@ gmte_plot(results, plot_title = "SLCO1B1*5 effect on LDL during statin treatment
 gmte_plot(results, plot_title = "SLCO1B1*5 effect on LDL during statin treatment", plot_cat=FALSE)
 ```
 
-<img src="https://raw.githubusercontent.com/lukepilling/twistR/main/twistR_hex_v1.png" width="770" />
+<img src="https://github.com/lukepilling/twistR/raw/main/images/gmte_plot.2.png" width="770" />
 
