@@ -79,9 +79,9 @@ gmte_plot = function(x,
 
 	## determine x axis label
 	x_lab = ""
-	if (model == "gmte_continuous")  x_lab = "Mean difference in outcome"
-	if (model == "gmte_binary")      x_lab = "Risk difference in outcome"
-	if (model == "gmte_aalen")       x_lab = "Hazard difference per unit time"
+	if (model == "gmte_continuous")  x_lab = "Mean difference in outcome [95% CIs]"
+	if (model == "gmte_binary")      x_lab = "Risk difference in outcome [95% CIs]"
+	if (model == "gmte_aalen")       x_lab = "Hazard difference per unit time [95% CIs]"
 
 	## create empty plot
 	##   extend xlim to give space for labels
