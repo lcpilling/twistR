@@ -191,6 +191,19 @@ G="slco1b1_5_hmz"
 Z="age+PC1+PC2+PC3+PC4+PC5+PC6+PC7+PC8+PC9+PC10"
 results=gmte_continuous(Y,T,G,Z,D)
 
+#Model                 Est          SE         EstP        Qstat        Qp Combine?
+#CAT          -47.79761593 0.156521799 0.000000e+00           NA        NA       NA
+#GMTE0         -0.02057607 0.008486743 1.533007e-02           NA        NA       NA
+#GMTE1          0.06984053 0.020476099 6.477051e-04           NA        NA       NA
+#RGMTE          0.09039080 0.022162475 4.532468e-05           NA        NA       NA
+#MR            -0.01003960 0.058701522 8.642019e-01           NA        NA       NA
+#RGMTE_MR       0.07786137 0.020733971 1.731645e-04     2.561888 0.1094678        1
+#RGMTE_CAT     -0.85083255 0.021943596 0.000000e+00 91766.240141 0.0000000        0
+#MR_CAT        -5.90268766 0.054963272 0.000000e+00 81719.705349 0.0000000        0
+#GMTE1_CAT     -0.73556685 0.020303105 0.000000e+00 91952.071936 0.0000000        0
+#RGMTE_MR_CAT  -0.74774632 0.020554416 0.000000e+00 91946.240796 0.0000000        0
+
+# plot these estimates, highlighting the individual and combined estimates
 gmte_plot(results, plot_title = "SLCO1B1*5 effect on LDL during statin treatment")
 ```
 
