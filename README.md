@@ -3,7 +3,7 @@
 # twistR
 TWIST (Triangulation WIthin A STudy) analysis in R. 
 
-[![](https://img.shields.io/badge/version-0.1.3-informational.svg)](https://github.com/lukepilling/twistR)
+[![](https://img.shields.io/badge/version-0.1.4-informational.svg)](https://github.com/lukepilling/twistR)
 [![](https://img.shields.io/github/last-commit/lukepilling/twistR.svg)](https://github.com/lukepilling/twistR/commits/master)
 [![](https://img.shields.io/badge/lifecycle-experimental-9cf.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 
@@ -29,7 +29,7 @@ If you use this package please cite
       - [Which estimate should I use?](#which-estimate-should-i-use)
       - [What does the estimate mean?](#what-does-the-estimate-mean)
       - [Example using Aalen additive hazards](#example-using-aalen-additive-hazards)
-
+  - [Forest plot of estimates](#forest-plot-of-estimates)
 
 ## Installation
 To install `twistR` from GitHub use the `devtools` package:
@@ -179,4 +179,28 @@ To test for potential bias in the GMTE(1) estimate, we calculate the GMTE(0) est
 
 For completeness, we next calculate the RGMTE estimate for the GMTE hazard difference. Since this is itself the difference between the GMTE(1) and GMTE(0) estimates, and given they are of opposite sign, the RMGTE estimate is slightly larger at 0.33% (p = 0.037), suggesting 17 strokes could have been avoided. The MR estimate for the GMTE hazard difference is similar at 0.29% (p = 0.008). Heterogeneity analysis reveals that the MR and RGMTE estimates are sufficiently similar to combine into a more precise single estimate of the GMTE (Q[MR,RGMTE] = 0.8). The combined estimate is 0.3 (p = 7.5*10-4), or that 16 strokes could have been avoided. No other combination of estimates are sufficiently similar to combine.
 
+## Forest plot of estimates
+
+To create a simple Forest Plot the estimates simply provide the output of a GMTE analysis:
+
+```RGMTE
+# Example using a continuous outcome (LDL), binary treatment (statins), and binary genotype (SLCO1B1*5 homozygotes) variables
+Y="ldl"
+T="statin"
+G="slco1b1_5_hmz"
+Z="age+PC1+PC2+PC3+PC4+PC5+PC6+PC7+PC8+PC9+PC10"
+results=gmte_continuous(Y,T,G,Z,D)
+
+gmte_plot(results, plot_title = "SLCO1B1*5 effect on LDL during statin treatment")
+```
+
+<img src="https://raw.githubusercontent.com/lukepilling/twistR/main/twistR_hex_v1.png" width="770" />
+
+
+```R
+# If desired, remove CAT estimates for "cleaner" plot, as these are often orders of magnititude larger than the other estimates
+gmte_plot(results, plot_title = "SLCO1B1*5 effect on LDL during statin treatment", plot_cat=FALSE)
+```
+
+<img src="https://raw.githubusercontent.com/lukepilling/twistR/main/twistR_hex_v1.png" width="770" />
 

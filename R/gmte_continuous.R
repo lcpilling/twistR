@@ -172,8 +172,7 @@ gmte_continuous = function(Y,T,G,Z,D,alpha=0.05,verbose=FALSE)
 	FullCombined[10,] = RGMTE_MR_CAT
 
 	colnames(FullCombined) = c("Est","SE","EstP","Qstat","Qp","Combine?")
-	rownames(FullCombined) = c("CAT","GMTE0","GMTE1","RGMTE","MR",
-	                           "RGMTE_MR","RGMTE_CAT","MR_CAT","GMTE1_CAT","RGMTE_MR_CAT")
+	FullCombined = cbind(Model=c("CAT","GMTE0","GMTE1","RGMTE","MR","RGMTE_MR","RGMTE_CAT","MR_CAT","GMTE1_CAT","RGMTE_MR_CAT"), as.data.frame(FullCombined))
 
 	cat("\nResults:\n")
 	print(FullCombined)
