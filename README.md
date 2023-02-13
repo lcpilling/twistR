@@ -18,6 +18,8 @@ If you use this package please cite
 > Bowden J, Pilling L, Türkmen D, Kuo C-L, Melzer D (2021) The Triangulation WIthin a STudy (TWIST) framework for causal inference within pharmacogenetic research. PLoS Genet 17(9):e1009783. https://doi.org/10.1371/journal.pgen.1009783
 
 ## Table of Contents
+<img align="right" src="https://github.com/lukepilling/twistR/raw/main/images/TWIST_meme1.png" width="465" />
+
   - [Installation](#installation)
   - [Model types performed](#model-types-performed)
   - [Function arguments](#function-arguments)
@@ -32,9 +34,9 @@ If you use this package please cite
   - [Forest plot of estimates](#forest-plot-of-estimates)
 
 ## Installation
-To install `twistR` from GitHub use the `devtools` package:
+To install `twistR` from GitHub use the `remotes` package:
 
-`devtools::install_github("lukepilling/twistR")`
+`remotes::install_github("lukepilling/twistR")`
 
 To update the package just run the above command again.
 
@@ -145,13 +147,14 @@ In our paper we include results from our analysis of the anti-platelet drug clop
 #   - a binary treatment variable (on clopidogrel)
 #   - a binary genotype (CYP2C19 *2-*8 LoF carriers)
 #   - adjustment for age and genetic principal components of ancestry 1 to 10
+#     ^^ all need to be in data.frame D
 Y_t0="time_0"
 Y_t1="time_to_stroke"
 Y_d="stroke_binary"
 T="clopidogrel"
 G="cyp2c19_lof"
 Z="age+sex+PC1+PC2+PC3+PC4+PC5+PC6+PC7+PC8+PC9+PC10"
-results=gmte_aalen(Y_t0,Y_t1,Y_d,T,G,D)
+results=gmte_aalen(Y_t0,Y_t1,Y_d,T,G,Z,D)
 ```
 
 Prints the following results table:
@@ -207,13 +210,16 @@ results=gmte_continuous(Y,T,G,Z,D)
 gmte_plot(results, plot_title = "SLCO1B1*5 effect on LDL during statin treatment")
 ```
 
-<img src="https://github.com/lukepilling/twistR/raw/main/images/gmte_plot.1.png" width="770" />
+<img src="https://github.com/lukepilling/twistR/raw/main/images/gmte_plot.1.png" width="650" />
 
+
+### Remove CAT estimates for "cleaner" plot
+
+As previously mentioned, the validity of the CAT method rests strongly on being able to identify all confounders of the treatment and the outcome. In this analysis it was only possible to adjust for age, sex and genetic principal components. Therefore the CAT estimate is disproportionately larger and consequently, the Q[CAT,GMTE(1)] statistic detects large heterogeneity, suggesting that the CAT and GMTE(1) estimates should not be combined.
 
 ```R
-# If desired, remove CAT estimates for "cleaner" plot, as these are often orders of magnititude larger than the other estimates
 gmte_plot(results, plot_title = "SLCO1B1*5 effect on LDL during statin treatment", plot_cat=FALSE)
 ```
 
-<img src="https://github.com/lukepilling/twistR/raw/main/images/gmte_plot.2.png" width="770" />
+<img src="https://github.com/lukepilling/twistR/raw/main/images/gmte_plot.2.png" width="650" />
 
