@@ -1,4 +1,4 @@
-<img align="right" src="https://github.com/lukepilling/twistR/raw/main/images/twistR_hex_v1.png" width="200" />
+<img align="right" src="https://github.com/lukepilling/twistR/raw/main/images/twistR_hex_v1.png" width="160" />
 
 # twistR
 TWIST (Triangulation WIthin A STudy) analysis in R. 
@@ -17,9 +17,10 @@ If you use this package please cite
 
 > Bowden J, Pilling L, Türkmen D, Kuo C-L, Melzer D (2021) The Triangulation WIthin a STudy (TWIST) framework for causal inference within pharmacogenetic research. PLoS Genet 17(9):e1009783. https://doi.org/10.1371/journal.pgen.1009783
 
-<img align="right" src="https://github.com/lukepilling/twistR/raw/main/images/TWIST_meme1.png" width="400" />
-
 ## Table of Contents
+
+<img align="right" src="https://github.com/lukepilling/twistR/raw/main/images/TWIST_meme1.png" width="350" />
+
   - [Installation](#installation)
   - [Model types performed](#model-types-performed)
   - [Function arguments](#function-arguments)
