@@ -6,3 +6,4 @@
 .Rbuildignore
 .db
 *.db
+docs
