@@ -3,11 +3,13 @@
 # twistR
 TWIST (Triangulation WIthin A STudy) analysis in R. 
 
+<!-- badges: start -->
 [![](https://img.shields.io/badge/version-0.1.4-informational.svg)](https://github.com/lukepilling/twistR)
 [![DOI](https://zenodo.org/badge/402818137.svg)](https://zenodo.org/badge/latestdoi/402818137)
 
 [![](https://img.shields.io/github/last-commit/lukepilling/twistR.svg)](https://github.com/lukepilling/twistR/commits/master)
 [![](https://img.shields.io/badge/lifecycle-experimental-orange)](https://www.tidyverse.org/lifecycle/#experimental)
+<!-- badges: end -->
 
 
 The TWIST framework estimates the 'genetically moderated treatment effect' (GMTE). This is akin to the population attributable fraction (PAF) in pharmaco-epidemiology: the excess disease or outcomes in individuals prescribed a specific medication that are attributed to genetic variant(s). TWIST extends the PAF by incorporating information on both treated and untreated individuals. With this larger set of information we show that four analysis approaches for estimating the GMTE are possible. Each one relies on a different set of assumptions to work correctly and provides estimates that are largely uncorrelated with one another. A decision framework is used to decide when a particular estimation strategy is most appropriate and how specific estimators can be combined to further improve efficiency. Triangulation of evidence from different data sources, each with their inherent biases and limitations, is becoming a well established principle for strengthening causal analysis. Hence we called our framework 'Triangulation WIthin a STudy' (TWIST) in order to emphasise that an analysis in this spirit is also possible within a single data set, using causal estimates that are approximately uncorrelated, but reliant on different sets of assumptions.
@@ -38,11 +40,21 @@ If you use this package please cite
   - [Forest plot of estimates](#forest-plot-of-estimates)
 
 ## Installation
-To install `twistR` from GitHub use the `remotes` package:
+To install the development version from GitHub use the `remotes` package:
 
-`remotes::install_github("lukepilling/twistR")`
+```r
+remotes::install_github("lukepilling/twistR")
+```
 
-To update the package just run the above command again.
+I periodically "release" a version number once it works as expected. The development version may contain things that do not yet "work."
+
+```r
+# To install the latest release, use:
+remotes::install_github("lukepilling/twistR@*release")
+
+# To install a specific version (see tags), use:
+remotes::install_github("lukepilling/twistR@v0.1.4")
+```
 
 ## Model types performed
 `twistR` can perform GMTE analysis on three types of outcome:
