@@ -1,14 +1,13 @@
-<img align="right" src="https://github.com/lukepilling/twistR/raw/main/images/twistR_hex_v1.png" width="160" />
+<img align="right" src="https://github.com/lukepilling/twistR/raw/main/images/twistR_hex_v1.png" width="200" />
 
 # twistR
 TWIST (Triangulation WIthin A STudy) analysis in R. 
 
 <!-- badges: start -->
 [![](https://img.shields.io/badge/version-0.1.4-informational.svg)](https://github.com/lukepilling/twistR)
-[![DOI](https://zenodo.org/badge/402818137.svg)](https://zenodo.org/badge/latestdoi/402818137)
-
 [![](https://img.shields.io/github/last-commit/lukepilling/twistR.svg)](https://github.com/lukepilling/twistR/commits/master)
 [![](https://img.shields.io/badge/lifecycle-experimental-orange)](https://www.tidyverse.org/lifecycle/#experimental)
+[![DOI](https://zenodo.org/badge/402818137.svg)](https://zenodo.org/badge/latestdoi/402818137)
 <!-- badges: end -->
 
 
