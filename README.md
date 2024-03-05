@@ -1,6 +1,6 @@
-<img align="right" src="https://github.com/lukepilling/twistR/raw/main/images/twistR_hex_v1.png" width="200" />
 
-# twistR
+# twistR <a href="https://lukepilling.github.io/twistR/"><img src="images/twistR_hex_v1.png" align="right" width="150" /></a>
+
 TWIST (Triangulation WIthin A STudy) analysis in R. 
 
 <!-- badges: start -->
