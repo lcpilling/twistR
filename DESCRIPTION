@@ -1,6 +1,6 @@
 Package: twistR
 Title: TWIST (Triangulation WIthin A STudy) analysis in R.
-Version: 0.1.4
+Version: 0.1.4.9000
 Authors@R: c(person("Luke", "Pilling", 
                     email = "L.Pilling@exeter.ac.uk", 
                     role = c("aut", "cre"),
@@ -11,7 +11,7 @@ Authors@R: c(person("Luke", "Pilling",
                     comment = c(ORCID = "0000-0003-2628-3304")))
 Description: An R package to implement the 'Triangulation WIthin a STudy' (TWIST) analysis framework to robusty estimate the 'Genetically Modified Treatment Effect' (GMTE).
 License: GPL-3
-URL: https://lukepilling.github.io/twistR, https://github.com/lukepilling/twistR
+URL: https://lcpilling.github.io/twistR, https://github.com/lcpilling/twistR
 Depends: R (>= 3.5.0), margins (>= 0.3.26), timereg (>= 2.0.0)
 Encoding: UTF-8
 LazyData: true

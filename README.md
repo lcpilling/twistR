@@ -1,11 +1,11 @@
 
-# twistR <a href="https://lukepilling.github.io/twistR/"><img src="images/twistR_hex_v1.png" align="right" width="150" /></a>
+# twistR <a href="https://lcpilling.github.io/twistR/"><img src="man/figures/twistR_hex_v1.png" align="right" width="150" /></a>
 
 TWIST (Triangulation WIthin A STudy) analysis in R. 
 
 <!-- badges: start -->
-[![](https://img.shields.io/badge/version-0.1.4-informational.svg)](https://github.com/lukepilling/twistR)
-[![](https://img.shields.io/github/last-commit/lukepilling/twistR.svg)](https://github.com/lukepilling/twistR/commits/master)
+[![](https://img.shields.io/badge/version-0.1.4-informational.svg)](https://github.com/lcpilling/twistR)
+[![](https://img.shields.io/github/last-commit/lcpilling/twistR.svg)](https://github.com/lcpilling/twistR/commits/master)
 [![](https://img.shields.io/badge/lifecycle-experimental-orange)](https://www.tidyverse.org/lifecycle/#experimental)
 [![DOI](https://zenodo.org/badge/402818137.svg)](https://zenodo.org/badge/latestdoi/402818137)
 <!-- badges: end -->
@@ -23,7 +23,7 @@ If you use this package please cite
 
 ## Table of Contents
 
-<img align="right" src="https://github.com/lukepilling/twistR/raw/main/images/TWIST_meme1.png" width="350" />
+<img align="right" src="man/figures/TWIST_meme1.png" width="350" />
 
   - [Installation](#installation)
   - [Model types performed](#model-types-performed)
@@ -225,7 +225,7 @@ results=gmte_continuous(Y,T,G,Z,D)
 gmte_plot(results, plot_title = "SLCO1B1*5 effect on LDL during statin treatment")
 ```
 
-<img src="https://github.com/lukepilling/twistR/raw/main/images/gmte_plot.1.png" width="650" />
+<img src="man/figures/gmte_plot.1.png" width="650" />
 
 
 ### Remove CAT estimates for "cleaner" plot
@@ -236,5 +236,5 @@ As previously mentioned, the validity of the CAT method rests strongly on being 
 gmte_plot(results, plot_title = "SLCO1B1*5 effect on LDL during statin treatment", plot_cat=FALSE)
 ```
 
-<img src="https://github.com/lukepilling/twistR/raw/main/images/gmte_plot.2.png" width="650" />
+<img src="man/figures/gmte_plot.2.png" width="650" />
 

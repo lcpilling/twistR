@@ -1,3 +1,11 @@
+# twistR 0.1.4.9000 (6 June 2024)
+
+### Changes
+* Change URL to reflect my GitHub username change from `lukepilling` to `lcpilling` to be more consistent between different logins, websites, and social media
+ - https://lcpilling.github.io/twistR
+ - https://github.com/lcpilling/twistR
+
+
 # twistR 0.1.4
 
 * `FullCombined` object is now a data.frame with a column for "Model" rather than using rownames of a matrix
