@@ -42,17 +42,13 @@ If you use this package please cite
 To install the development version from GitHub use the `remotes` package:
 
 ```r
-remotes::install_github("lukepilling/twistR")
-```
+remotes::install_github("lcpilling/twistR")
 
-I periodically "release" a version number once it works as expected. The development version may contain things that do not yet "work."
-
-```r
 # To install the latest release, use:
-remotes::install_github("lukepilling/twistR@*release")
+remotes::install_github("lcpilling/twistR@*release")
 
 # To install a specific version (see tags), use:
-remotes::install_github("lukepilling/twistR@v0.1.4")
+remotes::install_github("lcpilling/twistR@v0.1.0")
 ```
 
 ## Model types performed
