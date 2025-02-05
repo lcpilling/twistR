@@ -7,7 +7,7 @@
 gmte_plot(
   x,
   plot_title = "",
-  plot_cat = TRUE,
+  plot_cat = FALSE,
   cols = c("#f46036", "#2e294e", "#1b998b"),
   pchs = c(15, 16, 23)
 )
@@ -17,7 +17,7 @@ gmte_plot(
 
 \item{plot_title}{A string to print as the plot title}
 
-\item{plot_cat}{Logical. Plot the CAT estimates? (Default=TRUE)}
+\item{plot_cat}{Logical. Plot the CAT estimates? (Default=FALSE)}
 
 \item{cols}{Three colours to indiciate the three model types (GMTE0, individual estimates, combined estimates)}
 

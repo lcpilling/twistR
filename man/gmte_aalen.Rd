@@ -14,6 +14,7 @@ gmte_aalen(
   D,
   Nsim = 100,
   alpha = 0.05,
+  doCAT = FALSE,
   verbose = FALSE
 )
 }
@@ -35,6 +36,8 @@ gmte_aalen(
 \item{Nsim}{Number of simulations to perform in the \code{aalen()} models. Default is 100.}
 
 \item{alpha}{The p-value threshold for the chi-square test, estimating whether two estimates should be combined. Default is 0.05.}
+
+\item{doCAT}{Run the CAT analysis? Default is FALSE.}
 
 \item{verbose}{Return lots of output - useful for error checking. Default is FALSE.}
 }

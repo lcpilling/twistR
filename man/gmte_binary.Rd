@@ -4,7 +4,17 @@
 \alias{gmte_binary}
 \title{gmte_binary}
 \usage{
-gmte_binary(Y, T, G, Z, D, Link = "logit", alpha = 0.05, verbose = FALSE)
+gmte_binary(
+  Y,
+  T,
+  G,
+  Z,
+  D,
+  Link = "logit",
+  alpha = 0.05,
+  doCAT = FALSE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{Y}{The binary outcome variable name (string) which appears in data.frame \code{D}.}
@@ -20,6 +30,8 @@ gmte_binary(Y, T, G, Z, D, Link = "logit", alpha = 0.05, verbose = FALSE)
 \item{Link}{Link function for the \code{glm()} - needs to be one of "logit","probit" or "identity". If unspecified the default is "logit".}
 
 \item{alpha}{The p-value threshold for the chi-square test, estimating whether two estimates should be combined. Default is 0.05.}
+
+\item{doCAT}{Run the CAT analysis? Default is FALSE.}
 
 \item{verbose}{Return lots of output - useful for error checking. Default is FALSE.}
 }
