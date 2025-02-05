@@ -42,7 +42,7 @@ gmte_plot = function(x,
 	res   = x$FullCombined
 
 	# is CAT in the object? 
-	if (grepl())  {
+	if ("CAT" %in% res_aalen$FullCombined$Model)  {
 	
 		## move CAT below other estimates
 		rownames(res)=c(6,1:5,7:10)
@@ -52,6 +52,9 @@ gmte_plot = function(x,
 		res[,"col"] = c(cols[1],cols[2],cols[2],cols[2],cols[3],cols[2],cols[3],cols[3],cols[3],cols[3])
 		res[,"pch"] = c(pchs[1],pchs[2],pchs[2],pchs[2],pchs[3],pchs[2],pchs[3],pchs[3],pchs[3],pchs[3])
 	
+		## if plotting CAT but it is 10* larger than other estimates give a warning.
+		if (abs(res[res[,"Model"]=="CAT","Est"]) > 10*max(abs(res[res[,"Model"] %in% c("GMTE0","GMTE1","RGMTE","MR","RGMTE_MR"),"Est"])))  warning("The CAT estimate is substantially larger than other estimates. Consider re-running with the flag 'plot_cat=FALSE'")
+		
 	} else {
 		
 		## add colours & point types
@@ -59,9 +62,6 @@ gmte_plot = function(x,
 		res[,"pch"] = c(pchs[1],pchs[2],pchs[2],pchs[2],pchs[3])
 		
 	}
-
-	## if plotting CAT but it is 10* larger than other estimates give a warning.
-	if (plot_cat & abs(res[res[,"Model"]=="CAT","Est"]) > 10*max(abs(res[res[,"Model"] %in% c("GMTE0","GMTE1","RGMTE","MR","RGMTE_MR"),"Est"])))  warning("The CAT estimate is substantially larger than other estimates. Consider re-running with the flag 'plot_cat=FALSE'")
 
 	## remove CAT estimate if specified by user
 	if (!plot_cat) res = res[ ! grepl("CAT",res[,"Model"]) , ]

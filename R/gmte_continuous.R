@@ -34,7 +34,7 @@ gmte_continuous = function(Y,T,G,Z,D,alpha=0.05,doCAT=FALSE,verbose=FALSE)
 	start_time = Sys.time()
 	v <- packageVersion("twistR")
 	cat(paste0("TWIST (Triangulation WIthin A STudy) analysis in R v", v, "\n"))
-	cat("- Linear model (continuous outcome)\n")
+	cat("- Linear model (continuous outcome)\n\n")
 
 	## check inputs
 	if (class(Y) != "character")  stop("Outcome Y needs to be a variable name i.e. a string (class `character`)")
@@ -49,6 +49,7 @@ gmte_continuous = function(Y,T,G,Z,D,alpha=0.05,doCAT=FALSE,verbose=FALSE)
 	Zs=strsplit(Z,"[+]|[*]")[[1]]
 	for (Zx in Zs)  if (! Zx %in% colnames(D))  stop(paste0("Covariate [", Zx, "] needs to be in data.frame D"))
 
+	cat("Parameters:\n")
 	cat(paste0("- Outcome Y [", Y, "]\n"))
 	cat(paste0("- Treatment T [", T, "]\n"))
 	cat(paste0("- Genotype G [", G, "]\n"))

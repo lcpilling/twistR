@@ -36,7 +36,7 @@ gmte_binary = function(Y,T,G,Z,D,Link="logit",alpha=0.05,doCAT=FALSE,verbose=FAL
 	start_time = Sys.time()
 	v <- packageVersion("twistR")
 	cat(paste0("TWIST (Triangulation WIthin A STudy) analysis in R v", v, "\n"))
-	cat("- Logistic model (binary outcome)\n")
+	cat("- Logistic model (binary outcome)\n\n")
 	require(margins)
 
 	## check inputs
@@ -54,6 +54,7 @@ gmte_binary = function(Y,T,G,Z,D,Link="logit",alpha=0.05,doCAT=FALSE,verbose=FAL
 	Zs=strsplit(Z,"[+]|[*]")[[1]]
 	for (Zx in Zs)  if (! Zx %in% colnames(D))  stop(paste0("Covariate [", Zx, "] needs to be in data.frame D"))
 
+	cat("Parameters:\n")
 	cat(paste0("- Outcome Y [", Y, "]\n"))
 	cat(paste0("- Treatment T [", T, "]\n"))
 	cat(paste0("- Genotype G [", G, "]\n"))
