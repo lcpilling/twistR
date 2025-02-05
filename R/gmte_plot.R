@@ -4,7 +4,7 @@
 #'
 #' @param x An object of class \code{twistR_GMTE} e.g., the output from \code{gmte_continuous}
 #' @param plot_title A string to print as the plot title
-#' @param plot_cat Logical. Plot the CAT estimates? (Default=TRUE)
+#' @param plot_cat Logical. Plot the CAT estimates? (Default=FALSE)
 #' @param cols Three colours to indiciate the three model types (GMTE0, individual estimates, combined estimates)
 #' @param pchs Three point types to indiciate the three model types (GMTE0, individual estimates, combined estimates)
 #'
@@ -27,7 +27,7 @@
 
 gmte_plot = function(x, 
                      plot_title = "", 
-                     plot_cat = TRUE,
+                     plot_cat = FALSE,
                      cols = c("#f46036","#2e294e","#1b998b"),
                      pchs = c(15,16,23))  {
 

@@ -11,6 +11,7 @@
 #' @param D A data.frame containing the above variables.
 #' @param Nsim Number of simulations to perform in the \code{aalen()} models. Default is 100.
 #' @param alpha The p-value threshold for the chi-square test, estimating whether two estimates should be combined. Default is 0.05.
+#' @param doCAT Run the CAT analysis? Default is FALSE.
 #' @param verbose Return lots of output - useful for error checking. Default is FALSE.
 #' @return An object of class \code{twistR_GMTE} containing the following components:\describe{
 #' \item{\code{CAT}}{The summary statistics from the Corrected As Treated (CAT) analysis.}
@@ -33,7 +34,7 @@
 #' Z="age+PC1+PC2+PC3+PC4+PC5+PC6+PC7+PC8+PC9+PC10"
 #' results=gmte_aalen(Y_t0,Y_t1,Y_d,T,G,Z,D)
 
-gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100,alpha=0.05,verbose=FALSE)
+gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100,alpha=0.05,doCAT=FALSE,verbose=FALSE)
 {
 	start_time = Sys.time()
 	cat("TWIST (Triangulation WIthin A STudy) analysis in R - Aalen additive hazards (time-to-event) model\n")
@@ -82,7 +83,7 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100,alpha=0.05,verbose=FALSE)
 
 	cat(paste0("- Outcome Y_t0 [", Y_t0, "] i.e. when participants enter model\n"))
 	cat(paste0("- Outcome Y_t1 [", Y_t1, "] i.e. when participants exit model\n"))
-	cat(paste0("- Outcome Y_t0 [", Y_d, "] i.e. binary variable indicating event\n"))
+	cat(paste0("- Outcome Y_d [", Y_d, "] i.e. binary variable indicating event\n"))
 	cat(paste0("- Treatment T [", T, "]\n"))
 	cat(paste0("- Genotype G [", G, "]\n"))
 	cat(paste0("- Covariates [", Zwrapped, "]\n"))
@@ -146,13 +147,17 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100,alpha=0.05,verbose=FALSE)
 	survival_object = Surv(D[,"Y_t0"],D[,"Y_t1"],D[,"Y_d"])
 
 	# Corrected-As treated (CAT)
-	cat("Run CAT model\n")
-	D[,"Tcat"] = D[,"T"]*mean(D[,"G"][D[,"T"]==1])
-	CATfit     = invisible(aalen(as.formula(paste0("survival_object~const(Tcat)+",Zwrapped)),data=D,n.sim=Nsim))
-	CAT        = coef(CATfit)["const(Tcat)",1]
-	sCAT       = coef(CATfit)["const(Tcat)",2]
-	pCAT       = coef(CATfit)["const(Tcat)",5]
-	if (verbose)  print(CATfit)
+	if (doCAT)  {
+		cat("Run CAT model\n")
+		D[,"Tcat"] = D[,"T"]*mean(D[,"G"][D[,"T"]==1])
+		CATfit     = invisible(aalen(as.formula(paste0("survival_object~const(Tcat)+",Zwrapped)),data=D,n.sim=Nsim))
+		CAT        = coef(CATfit)["const(Tcat)",1]
+		sCAT       = coef(CATfit)["const(Tcat)",2]
+		pCAT       = coef(CATfit)["const(Tcat)",5]
+		if (verbose)  print(CATfit)
+	} else {
+		pCAT <- sCAT <- CAT <- CATfit <- NA
+	}
 
 	# GMTE(0)
 	cat("Run GMTE(0) model\n")
@@ -199,6 +204,7 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100,alpha=0.05,verbose=FALSE)
 		FullCombined[5,]  = c(MR,sMR,pMR)
 		colnames(FullCombined) = c("Est","SE","EstP")
 		rownames(FullCombined) = c("CAT","GMTE0","GMTE1","RGMTE","MR")
+		if (!doCAT)  FullCombined <- FullCombined[2:5,]
 		cat("\nResults (initial):\n")
 		print(FullCombined)
 	}
@@ -207,14 +213,16 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100,alpha=0.05,verbose=FALSE)
 	cat("Combined methods\n")
 	Ests         = c(MR,RGMTE); SEs = c(sMR,sRGMTE)
 	RGMTE_MR     = gmte_combine(Ests,SEs,alpha)
-	Ests         = c(CAT,RGMTE); SEs = c(sCAT,sRGMTE)
-	RGMTE_CAT    = gmte_combine(Ests,SEs,alpha)
-	Ests         = c(CAT,MR); SEs = c(sCAT,sMR)
-	MR_CAT       = gmte_combine(Ests,SEs,alpha)
-	Ests         = c(CAT,GMTE1); SEs = c(sCAT,sGMTE1)
-	GMTE1_CAT    = gmte_combine(Ests,SEs,alpha)
-	Ests         = c(MR,RGMTE,CAT); SEs = c(sMR,sRGMTE,sCAT)
-	RGMTE_MR_CAT = gmte_combine(Ests,SEs,alpha)
+	if (doCAT)  {
+		Ests         = c(CAT,RGMTE); SEs = c(sCAT,sRGMTE)
+		RGMTE_CAT    = gmte_combine(Ests,SEs,alpha)
+		Ests         = c(CAT,MR); SEs = c(sCAT,sMR)
+		MR_CAT       = gmte_combine(Ests,SEs,alpha)
+		Ests         = c(CAT,GMTE1); SEs = c(sCAT,sGMTE1)
+		GMTE1_CAT    = gmte_combine(Ests,SEs,alpha)
+		Ests         = c(MR,RGMTE,CAT); SEs = c(sMR,sRGMTE,sCAT)
+		RGMTE_MR_CAT = gmte_combine(Ests,SEs,alpha)
+	}
 
 	# Final output
 	FullCombined      = matrix(nrow=10,ncol=6)
@@ -224,13 +232,17 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100,alpha=0.05,verbose=FALSE)
 	FullCombined[4,]  = c(RGMTE,sRGMTE,pRGMTE,NA,NA,NA)
 	FullCombined[5,]  = c(MR,sMR,pMR,NA,NA,NA)
 	FullCombined[6,]  = RGMTE_MR
-	FullCombined[7,]  = RGMTE_CAT
-	FullCombined[8,]  = MR_CAT
-	FullCombined[9,]  = GMTE1_CAT
-	FullCombined[10,] = RGMTE_MR_CAT
+	if (doCAT)  {
+		FullCombined[7,]  = RGMTE_CAT
+		FullCombined[8,]  = MR_CAT
+		FullCombined[9,]  = GMTE1_CAT
+		FullCombined[10,] = RGMTE_MR_CAT
+	}
 
 	colnames(FullCombined) = c("Est","SE","EstP","Qstat","Qp","Combine?")
 	FullCombined = cbind(Model=c("CAT","GMTE0","GMTE1","RGMTE","MR","RGMTE_MR","RGMTE_CAT","MR_CAT","GMTE1_CAT","RGMTE_MR_CAT"), as.data.frame(FullCombined))
+
+	if (!doCAT)  FullCombined <- FullCombined[2:6,]
 
 	cat("\nResults:\n")
 	print(FullCombined)

@@ -4,6 +4,7 @@
 * Change URL to reflect my GitHub username change from `lukepilling` to `lcpilling` to be more consistent between different logins, websites, and social media
  - https://lcpilling.github.io/twistR
  - https://github.com/lcpilling/twistR
+* Change CAT analysis to optional (default is FALSE) -- slow and not often used
 
 
 # twistR 0.1.4

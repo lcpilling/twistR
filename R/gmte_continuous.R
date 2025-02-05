@@ -8,6 +8,7 @@
 #' @param Z A string containing the model covariates to appear in the \code{glm()} models (for example "age+sex"). All need to be in data.frame \code{D}.
 #' @param D A data.frame containing the above variables.
 #' @param alpha The p-value threshold for the chi-square test, estimating whether two estimates should be combined. Default is 0.05.
+#' @param doCAT Run the CAT analysis? Default is FALSE.
 #' @param verbose Return lots of output - useful for error checking. Default is FALSE.
 #' @return An object of class \code{twistR_GMTE} containing the following components:\describe{
 #' \item{\code{CAT}}{The summary statistics from the Corrected As Treated (CAT) analysis.}
@@ -28,7 +29,7 @@
 #' Z="age+PC1+PC2+PC3+PC4+PC5+PC6+PC7+PC8+PC9+PC10"
 #' results=gmte_continuous(Y,T,G,Z,D)
 
-gmte_continuous = function(Y,T,G,Z,D,alpha=0.05,verbose=FALSE)
+gmte_continuous = function(Y,T,G,Z,D,alpha=0.05,doCAT=FALSE,verbose=FALSE)
 {
 	start_time = Sys.time()
 	cat("TWIST (Triangulation WIthin A STudy) analysis in R - continuous outcome\n")
@@ -88,13 +89,17 @@ gmte_continuous = function(Y,T,G,Z,D,alpha=0.05,verbose=FALSE)
 	####################
 
 	# Corrected-As treated (CAT)
-	cat("Run CAT model\n")
-	D[,"Tcat"] = D[,"T"]*mean(D[,"G"][D[,"T"]==1])
-	CATfit     = lm(as.formula(paste0("Y~Tcat+",Z)),data=D)
-	CAT        = summary(CATfit)$coef["Tcat",1]
-	sCAT       = summary(CATfit)$coef["Tcat",2]
-	pCAT       = summary(CATfit)$coef["Tcat",4]
-	if (verbose)  print(CATfit)
+	if (doCAT)  {
+		cat("Run CAT model\n")
+		D[,"Tcat"] = D[,"T"]*mean(D[,"G"][D[,"T"]==1])
+		CATfit     = lm(as.formula(paste0("Y~Tcat+",Z)),data=D)
+		CAT        = summary(CATfit)$coef["Tcat",1]
+		sCAT       = summary(CATfit)$coef["Tcat",2]
+		pCAT       = summary(CATfit)$coef["Tcat",4]
+		if (verbose)  print(CATfit)
+	} else {
+		pCAT <- sCAT <- CAT <- CATfit <- NA
+	}
 
 	# GMTE(0)
 	cat("Run GMTE(0) model\n")
@@ -141,6 +146,7 @@ gmte_continuous = function(Y,T,G,Z,D,alpha=0.05,verbose=FALSE)
 		FullCombined[5,]  = c(MR,sMR,pMR)
 		colnames(FullCombined) = c("Est","SE","EstP")
 		rownames(FullCombined) = c("CAT","GMTE0","GMTE1","RGMTE","MR")
+		if (!doCAT)  FullCombined <- FullCombined[2:5,]
 		cat("\nResults (initial):\n")
 		print(FullCombined)
 	}
@@ -149,14 +155,16 @@ gmte_continuous = function(Y,T,G,Z,D,alpha=0.05,verbose=FALSE)
 	cat("Combined methods\n")
 	Ests         = c(MR,RGMTE); SEs = c(sMR,sRGMTE)
 	RGMTE_MR     = gmte_combine(Ests,SEs,alpha)
-	Ests         = c(CAT,RGMTE); SEs = c(sCAT,sRGMTE)
-	RGMTE_CAT    = gmte_combine(Ests,SEs,alpha)
-	Ests         = c(CAT,MR); SEs = c(sCAT,sMR)
-	MR_CAT       = gmte_combine(Ests,SEs,alpha)
-	Ests         = c(CAT,GMTE1); SEs = c(sCAT,sGMTE1)
-	GMTE1_CAT    = gmte_combine(Ests,SEs,alpha)
-	Ests         = c(MR,RGMTE,CAT); SEs = c(sMR,sRGMTE,sCAT)
-	RGMTE_MR_CAT = gmte_combine(Ests,SEs,alpha)
+	if (doCAT)  {
+		Ests         = c(CAT,RGMTE); SEs = c(sCAT,sRGMTE)
+		RGMTE_CAT    = gmte_combine(Ests,SEs,alpha)
+		Ests         = c(CAT,MR); SEs = c(sCAT,sMR)
+		MR_CAT       = gmte_combine(Ests,SEs,alpha)
+		Ests         = c(CAT,GMTE1); SEs = c(sCAT,sGMTE1)
+		GMTE1_CAT    = gmte_combine(Ests,SEs,alpha)
+		Ests         = c(MR,RGMTE,CAT); SEs = c(sMR,sRGMTE,sCAT)
+		RGMTE_MR_CAT = gmte_combine(Ests,SEs,alpha)
+	}
 
 	# Final output
 	FullCombined      = matrix(nrow=10,ncol=6)
@@ -166,13 +174,17 @@ gmte_continuous = function(Y,T,G,Z,D,alpha=0.05,verbose=FALSE)
 	FullCombined[4,]  = c(RGMTE,sRGMTE,pRGMTE,NA,NA,NA)
 	FullCombined[5,]  = c(MR,sMR,pMR,NA,NA,NA)
 	FullCombined[6,]  = RGMTE_MR
-	FullCombined[7,]  = RGMTE_CAT
-	FullCombined[8,]  = MR_CAT
-	FullCombined[9,]  = GMTE1_CAT
-	FullCombined[10,] = RGMTE_MR_CAT
+	if (doCAT)  {
+		FullCombined[7,]  = RGMTE_CAT
+		FullCombined[8,]  = MR_CAT
+		FullCombined[9,]  = GMTE1_CAT
+		FullCombined[10,] = RGMTE_MR_CAT
+	}
 
 	colnames(FullCombined) = c("Est","SE","EstP","Qstat","Qp","Combine?")
 	FullCombined = cbind(Model=c("CAT","GMTE0","GMTE1","RGMTE","MR","RGMTE_MR","RGMTE_CAT","MR_CAT","GMTE1_CAT","RGMTE_MR_CAT"), as.data.frame(FullCombined))
+
+	if (!doCAT)  FullCombined <- FullCombined[2:6,]
 
 	cat("\nResults:\n")
 	print(FullCombined)
