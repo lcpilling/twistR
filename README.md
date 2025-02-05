@@ -4,7 +4,7 @@
 TWIST (Triangulation WIthin A STudy) analysis in R. 
 
 <!-- badges: start -->
-[![](https://img.shields.io/badge/version-0.1.4-informational.svg)](https://github.com/lcpilling/twistR)
+[![](https://img.shields.io/badge/version-0.1.5-informational.svg)](https://github.com/lcpilling/twistR)
 [![](https://img.shields.io/github/last-commit/lcpilling/twistR.svg)](https://github.com/lcpilling/twistR/commits/master)
 [![](https://img.shields.io/badge/lifecycle-experimental-orange)](https://www.tidyverse.org/lifecycle/#experimental)
 [![DOI](https://zenodo.org/badge/402818137.svg)](https://zenodo.org/badge/latestdoi/402818137)

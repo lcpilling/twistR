@@ -4,7 +4,7 @@
 #'
 #' @param x An object of class \code{twistR_GMTE} e.g., the output from \code{gmte_continuous}
 #' @param plot_title A string to print as the plot title
-#' @param plot_cat Logical. Plot the CAT estimates? (Default=TRUE)
+#' @param plot_cat Logical. Plot the CAT estimates? (Default=FALSE)
 #' @param cols Three colours to indiciate the three model types (GMTE0, individual estimates, combined estimates)
 #' @param pchs Three point types to indiciate the three model types (GMTE0, individual estimates, combined estimates)
 #'
@@ -27,7 +27,7 @@
 
 gmte_plot = function(x, 
                      plot_title = "", 
-                     plot_cat = TRUE,
+                     plot_cat = FALSE,
                      cols = c("#f46036","#2e294e","#1b998b"),
                      pchs = c(15,16,23))  {
 
@@ -41,16 +41,27 @@ gmte_plot = function(x,
 	model = x$model
 	res   = x$FullCombined
 
-	## move CAT below other estimates
-	rownames(res)=c(6,1:5,7:10)
-	res=res[order(as.numeric(rownames(res))),]
-
-	## add colours & point types
-	res[,"col"] = c(cols[1],cols[2],cols[2],cols[2],cols[3],cols[2],cols[3],cols[3],cols[3],cols[3])
-	res[,"pch"] = c(pchs[1],pchs[2],pchs[2],pchs[2],pchs[3],pchs[2],pchs[3],pchs[3],pchs[3],pchs[3])
-
-	## if plotting CAT but it is 10* larger than other estimates give a warning.
-	if (plot_cat & abs(res[res[,"Model"]=="CAT","Est"]) > 10*max(abs(res[res[,"Model"] %in% c("GMTE0","GMTE1","RGMTE","MR","RGMTE_MR"),"Est"])))  warning("The CAT estimate is substantially larger than other estimates. Consider re-running with the flag 'plot_cat=FALSE'")
+	# is CAT in the object? 
+	if ("CAT" %in% res$FullCombined$Model)  {
+	
+		## move CAT below other estimates
+		rownames(res)=c(6,1:5,7:10)
+		res=res[order(as.numeric(rownames(res))),]
+	
+		## add colours & point types
+		res[,"col"] = c(cols[1],cols[2],cols[2],cols[2],cols[3],cols[2],cols[3],cols[3],cols[3],cols[3])
+		res[,"pch"] = c(pchs[1],pchs[2],pchs[2],pchs[2],pchs[3],pchs[2],pchs[3],pchs[3],pchs[3],pchs[3])
+	
+		## if plotting CAT but it is 10* larger than other estimates give a warning.
+		if (abs(res[res[,"Model"]=="CAT","Est"]) > 10*max(abs(res[res[,"Model"] %in% c("GMTE0","GMTE1","RGMTE","MR","RGMTE_MR"),"Est"])))  warning("The CAT estimate is substantially larger than other estimates. Consider re-running with the flag 'plot_cat=FALSE'")
+		
+	} else {
+		
+		## add colours & point types
+		res[,"col"] = c(cols[1],cols[2],cols[2],cols[2],cols[3])
+		res[,"pch"] = c(pchs[1],pchs[2],pchs[2],pchs[2],pchs[3])
+		
+	}
 
 	## remove CAT estimate if specified by user
 	if (!plot_cat) res = res[ ! grepl("CAT",res[,"Model"]) , ]
