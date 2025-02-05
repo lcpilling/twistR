@@ -32,6 +32,7 @@
 gmte_continuous = function(Y,T,G,Z,D,alpha=0.05,doCAT=FALSE,verbose=FALSE)
 {
 	start_time = Sys.time()
+
 	v <- packageVersion("twistR")
 	cat(paste0("TWIST (Triangulation WIthin A STudy) analysis in R v", v, "\n"))
 	cat("- Linear model (continuous outcome)\n\n")

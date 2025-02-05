@@ -37,10 +37,13 @@
 gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100,alpha=0.05,doCAT=FALSE,verbose=FALSE)
 {
 	start_time = Sys.time()
+
+	require(timereg)
+	require(survival)
+
 	v <- packageVersion("twistR")
 	cat(paste0("TWIST (Triangulation WIthin A STudy) analysis in R v", v, "\n"))
 	cat("- Aalen additive hazards model (time-to-event outcome)\n\n")
-	require(timereg)
 
 	## check inputs
 	if (class(Y_t0) != "character")  stop("Outcome Y_t0 needs to be a variable name i.e. a string (class `character`)")

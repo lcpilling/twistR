@@ -42,7 +42,7 @@ gmte_plot = function(x,
 	res   = x$FullCombined
 
 	# is CAT in the object? 
-	if ("CAT" %in% res_aalen$FullCombined$Model)  {
+	if ("CAT" %in% res$FullCombined$Model)  {
 	
 		## move CAT below other estimates
 		rownames(res)=c(6,1:5,7:10)
