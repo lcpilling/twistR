@@ -37,7 +37,9 @@
 gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100,alpha=0.05,doCAT=FALSE,verbose=FALSE)
 {
 	start_time = Sys.time()
-	cat("TWIST (Triangulation WIthin A STudy) analysis in R - Aalen additive hazards (time-to-event) model\n")
+	v <- packageVersion("twistR")
+	cat(paste0("TWIST (Triangulation WIthin A STudy) analysis in R v", v, "\n"))
+	cat("- Aalen additive hazards model (time-to-event outcome)\n\n")
 	require(timereg)
 
 	## check inputs
@@ -81,6 +83,7 @@ gmte_aalen = function(Y_t0,Y_t1,Y_d,T,G,Z,D,Nsim=100,alpha=0.05,doCAT=FALSE,verb
 		if (! Zx %in% colnames(D))  stop(paste0("Covariate [", Zx, "] needs to be in data.frame D"))
 	}
 
+	cat("Parameters:\n")
 	cat(paste0("- Outcome Y_t0 [", Y_t0, "] i.e. when participants enter model\n"))
 	cat(paste0("- Outcome Y_t1 [", Y_t1, "] i.e. when participants exit model\n"))
 	cat(paste0("- Outcome Y_d [", Y_d, "] i.e. binary variable indicating event\n"))

@@ -34,7 +34,9 @@
 gmte_binary = function(Y,T,G,Z,D,Link="logit",alpha=0.05,doCAT=FALSE,verbose=FALSE)
 {
 	start_time = Sys.time()
-	cat("TWIST (Triangulation WIthin A STudy) analysis in R - binary outcome\n")
+	v <- packageVersion("twistR")
+	cat(paste0("TWIST (Triangulation WIthin A STudy) analysis in R v", v, "\n"))
+	cat("- Logistic model (binary outcome)\n")
 	require(margins)
 
 	## check inputs

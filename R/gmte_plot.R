@@ -41,13 +41,24 @@ gmte_plot = function(x,
 	model = x$model
 	res   = x$FullCombined
 
-	## move CAT below other estimates
-	rownames(res)=c(6,1:5,7:10)
-	res=res[order(as.numeric(rownames(res))),]
-
-	## add colours & point types
-	res[,"col"] = c(cols[1],cols[2],cols[2],cols[2],cols[3],cols[2],cols[3],cols[3],cols[3],cols[3])
-	res[,"pch"] = c(pchs[1],pchs[2],pchs[2],pchs[2],pchs[3],pchs[2],pchs[3],pchs[3],pchs[3],pchs[3])
+	# is CAT in the object? 
+	if (grepl())  {
+	
+		## move CAT below other estimates
+		rownames(res)=c(6,1:5,7:10)
+		res=res[order(as.numeric(rownames(res))),]
+	
+		## add colours & point types
+		res[,"col"] = c(cols[1],cols[2],cols[2],cols[2],cols[3],cols[2],cols[3],cols[3],cols[3],cols[3])
+		res[,"pch"] = c(pchs[1],pchs[2],pchs[2],pchs[2],pchs[3],pchs[2],pchs[3],pchs[3],pchs[3],pchs[3])
+	
+	} else {
+		
+		## add colours & point types
+		res[,"col"] = c(cols[1],cols[2],cols[2],cols[2],cols[3])
+		res[,"pch"] = c(pchs[1],pchs[2],pchs[2],pchs[2],pchs[3])
+		
+	}
 
 	## if plotting CAT but it is 10* larger than other estimates give a warning.
 	if (plot_cat & abs(res[res[,"Model"]=="CAT","Est"]) > 10*max(abs(res[res[,"Model"] %in% c("GMTE0","GMTE1","RGMTE","MR","RGMTE_MR"),"Est"])))  warning("The CAT estimate is substantially larger than other estimates. Consider re-running with the flag 'plot_cat=FALSE'")

@@ -32,7 +32,9 @@
 gmte_continuous = function(Y,T,G,Z,D,alpha=0.05,doCAT=FALSE,verbose=FALSE)
 {
 	start_time = Sys.time()
-	cat("TWIST (Triangulation WIthin A STudy) analysis in R - continuous outcome\n")
+	v <- packageVersion("twistR")
+	cat(paste0("TWIST (Triangulation WIthin A STudy) analysis in R v", v, "\n"))
+	cat("- Linear model (continuous outcome)\n")
 
 	## check inputs
 	if (class(Y) != "character")  stop("Outcome Y needs to be a variable name i.e. a string (class `character`)")
